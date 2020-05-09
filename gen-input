@@ -1,8 +1,68 @@
 #!/bin/env python3
+'''
+Requirements: 
+    python3 3.8.2
+    python3-pip 20.0.2
+    $ pip3 install --user numpy
+Usage: ./gen-input --help
+Example: ./gen-input -d 50 -h 50,100 -w 100,10000 -n 100
+'''
+import argparse
+import json
+import random
+import sys
 
-# TODO
-print('''{
-    "grid"      : [[[0,0,0],[0,1,0],[0,0,0]],[[1,0,0],[0,1,0],[0,0,1]]],
-    "src_coor"  : [0,0,0],
-    "dest_coor" : [[1,0,1],[0,2,2]]
-}''')
+import numpy as np
+
+
+def rand_from_str(s: str) -> int:
+    # s = '1,2' or s = '1'
+    s = [int(x) for x in s.split(',')]
+    if len(s) == 2:
+        return random.randint(*s)
+    else:
+        return s[0]
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(conflict_handler='resolve')
+    parser.add_argument('-w', help='width, a number or a range "start,end"')
+    parser.add_argument('-h', help='height, a number or a range "start,end"')
+    parser.add_argument('-n', help='number of destination cells')
+    parser.add_argument('-d', type=int, default=2, help='number of layers')
+
+    args = parser.parse_args()
+    args.w = rand_from_str(args.w or '2,50')
+    args.h = rand_from_str(args.h or '2,50')
+    if args.n is None:
+        args.n = random.randint(1, args.h*args.w-1)
+    else:
+        args.n = int(args.n)
+
+    return args
+
+
+def write_out(grid: list, src_coor: list, dest_coor: list):
+    json.dump({
+        "grid": grid,
+        "src_coor": src_coor,
+        "dest_coor": dest_coor
+    }, sys.stdout)
+
+
+def rand_coord(d, h, w):
+    return [
+        random.randint(0, d-1),
+        random.randint(0, h-1),
+        random.randint(0, w-1)
+    ]
+
+
+if __name__ == "__main__":
+    args = parse_args()
+
+    grid = np.random.randint(2, size=(args.d, args.h, args.w), dtype='uint8')
+    src_coor = rand_coord(args.d, args.h, args.w)
+    dest_coor = [rand_coord(args.d, args.h, args.w) for _ in range(args.n)]
+
+    write_out(grid.tolist(), src_coor, dest_coor)
