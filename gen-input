@@ -58,15 +58,21 @@ def rand_coord(d, h, w):
         random.randint(0, w-1)
     ]
 
+
 def add_vias(grid, v, h, w, src_coor, dest_coor):
     for i in range(v):
-        via_coor_x = random.randint(0, w-1)
-        via_coor_y = random.randint(0, h-1)
-        if not ([0, via_coor_y, via_coor_x] == src_coor or [1, via_coor_y, via_coor_x] == src_coor or \
-            [0, via_coor_y, via_coor_x] in dest_coor or [1, via_coor_y, via_coor_x] in dest_coor):
-            grid[0, via_coor_y, via_coor_x] = 2
-            grid[1, via_coor_y, via_coor_x] = 2
+        placed = False
+        while not placed:
+            via_coor_x = random.randint(0, w-1)
+            via_coor_y = random.randint(0, h-1)
+            if not ([0, via_coor_y, via_coor_x] == src_coor or [1, via_coor_y, via_coor_x] == src_coor or
+                    [0, via_coor_y, via_coor_x] in dest_coor or [1, via_coor_y, via_coor_x] in dest_coor):
+                grid[0, via_coor_y, via_coor_x] = 2
+                grid[1, via_coor_y, via_coor_x] = 2
+                placed = True
+
     return grid
+
 
 if __name__ == "__main__":
     args = parse_args()
