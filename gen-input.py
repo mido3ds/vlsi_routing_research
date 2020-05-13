@@ -5,8 +5,8 @@ Requirements:
     - python3 3.8.2
     - python3-pip 20.0.2
     $ pip3 install --user numpy
-For help: python gen-input --help
-Example: python gen-input -d 50 -h 50,100 -w 100,10000 -n 100 -v 5 > inputs/test1.json
+For help: python gen-input.py --help
+Example: python gen-input.py -d 50 -h 50,100 -w 100,10000 -n 100 -v 5 > inputs/test1.json
 '''
 import argparse
 import json
