@@ -8,6 +8,15 @@
 - L : length of specific path (variable).
 
 ## Input Schema
+Example:
+
+```json
+{
+    "grid"      : [[[0,0,0],[0,1,0],[0,2,0]],[[1,0,0],[0,1,0],[0,2,1]]],
+    "src_coor"  : [0,0,0],
+    "dest_coor" : [[1,0,1],[0,2,2]]
+}
+```
 
 ### General Variable Description
 - `grid` : An array with depth of 1 (single layer) or 2 (multiple layer) that represents the layout of the chip. Consists of a number of cells, each of which contains the value of 0 (in case of empty cell) or 1 (in case of occupied cell) or 2 (in case of VIA).
@@ -23,6 +32,15 @@
 | dest_coor    | Integer        | N x 3      |
 
 ## Output Schema
+Example:
+
+```json
+{
+    "path_exists" : [true,true],
+    "path_length" : [4,5],
+    "path_coor"   : [[[0,1,0],[1,1,1],[1,1,2],[1,2,2]],[[0,1,0],[0,1,1],[1,1,1],[1,1,2],[1,1,3]]]
+}
+```
 
 ### General Variable Description
 - `path_exists` : An array of booleans defining whether a path is found between source and destination.
