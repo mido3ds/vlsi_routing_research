@@ -90,6 +90,11 @@ def add_vias(grid, v, h, w, src_coor, dest_coor):
     return grid
 
 
+def clear_obstacle(a: [int], grid):
+    grid[a[0]][a[1]][a[2]] = 0
+    return grid
+
+
 if __name__ == "__main__":
     args = parse_args()
 
@@ -98,5 +103,9 @@ if __name__ == "__main__":
     dest_coor = [rand_coord(args.d, args.h, args.w) for _ in range(args.n)]
     if args.d > 1:
         grid = add_vias(grid, args.v, args.h, args.w, src_coor, dest_coor)
+
+    grid = clear_obstacle(src_coor, grid)
+    for a in dest_coor:
+        grid = clear_obstacle(a, grid)
 
     write_out(grid.tolist(), src_coor, dest_coor)
