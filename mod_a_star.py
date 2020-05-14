@@ -89,11 +89,11 @@ def solve_routing(grid, src_coor, dest_coor):
 if __name__ == "__main__":
     grid, src_coor, dest_coor = read_input()
 
-    if grid.shape[0] == 1 or grid.shape[0] == 2:
-        path_exists, path_length, path_coor = solve_routing(
-            grid, src_coor, dest_coor
-        )
-    else:
-        print("Invalid depth!", file=sys.stderr)
+    assert grid.shape[0] in (1, 2), \
+        f'expected number of layers to be 1 or 2, found {grid.shape[0]}'
+
+    path_exists, path_length, path_coor = solve_routing(
+        grid, src_coor, dest_coor
+    )
 
     write_output(path_exists, path_length, path_coor)
