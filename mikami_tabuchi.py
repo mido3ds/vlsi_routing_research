@@ -1,7 +1,7 @@
 #!/bin/env python3
 import json
 import sys
-from typing import NamedTuple, List
+from typing import NamedTuple, List, Generator
 
 import numpy as np
 
@@ -41,6 +41,17 @@ class Point(NamedTuple):
 class Line(NamedTuple):
     a: Point
     b: Point
+
+    def is_vertical(self) -> bool:
+        return self.a.d == self.b.d and self.a.w == self.b.w
+
+    def points(self):
+        if self.is_vertical():
+            for h in range(self.a.h, self.b.h+1):
+                yield self.a._replace(h=h)
+        else:
+            for w in range(self.a.w, self.b.w+1):
+                yield self.a._replace(w=w)
 
 
 class Path(NamedTuple):
