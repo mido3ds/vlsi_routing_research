@@ -1,23 +1,24 @@
-import os
-import math
+#!/bin/env python
+import sys
 import json
 import copy 
+import math
 import argparse
 import numpy as np
 
+
 # IO Utils
-def read_input(input_path):
-    with open(input_path, 'r') as f:
-        data = json.load(f)
+def read_input():
+    data = json.load(sys.stdin)
     return data["grid"], data["src_coor"], data["dest_coor"]
 
-def write_output(output_dir, path_exists, path_length, path_coor):
-    with open(os.path.join(output_dir, "mod_a_star.json"), 'w') as f:
-        json.dump({
-            "path_exists": path_exists,
-            "path_length": path_length,
-            "path_coor": path_coor
-        }, f)
+def write_output(path_exists, path_length, path_coor):
+    json.dump({
+        "path_exists": path_exists,
+        "path_length": path_length,
+        "path_coor": path_coor
+    }, sys.stdout)
+
 
 # Routing Utils
 def is_equal(src_pt, dest_pt):
@@ -31,15 +32,15 @@ def get_cell_val(grid, pt):
 def get_surroundings(src_pt, is_via, height, width):
     surround_pts = []
     if (src_pt[1]-1 >= 0):
-        surround_pts.append([src_pt[0],src_pt[1]-1,src_pt[2]])
+        surround_pts.append([src_pt[0], src_pt[1]-1, src_pt[2]])
     if (src_pt[1]+1 < height):
-        surround_pts.append([src_pt[0],src_pt[1]+1,src_pt[2]])
+        surround_pts.append([src_pt[0] ,src_pt[1]+1, src_pt[2]])
     if (src_pt[2]-1 >= 0):
-        surround_pts.append([src_pt[0],src_pt[1],src_pt[2]-1])
+        surround_pts.append([src_pt[0], src_pt[1], src_pt[2]-1])
     if (src_pt[2]+1 < width):
-        surround_pts.append([src_pt[0],src_pt[1],src_pt[2]+1])
+        surround_pts.append([src_pt[0], src_pt[1], src_pt[2]+1])
     if is_via:
-        surround_pts.append([abs(src_pt[0]-1),src_pt[1],src_pt[2]])
+        surround_pts.append([abs(src_pt[0]-1), src_pt[1], src_pt[2]])
     return surround_pts
 
 def calc_euclid_dist(src_pt, dest_pt):
@@ -47,9 +48,10 @@ def calc_euclid_dist(src_pt, dest_pt):
                     (src_pt[1]-dest_pt[1])**2 + \
                     (src_pt[2]-dest_pt[2])**2)
 
+
 # Routing
 def solve_routing(grid, src_coor, dest_coor):
-    print("Starting single layer routing ...")
+    print("Starting single layer routing ...", file=sys.stderr)
     # output initialization
     src_points = [src_coor]
     path_exists = []
@@ -58,7 +60,7 @@ def solve_routing(grid, src_coor, dest_coor):
 
     # loop over all destinations
     for dest_pt in dest_coor:
-        print("Routing new destination")
+        print("Routing new destination", file=sys.stderr)
         temp_src_points = copy.deepcopy(src_points)
         path_found = False
 
@@ -93,7 +95,10 @@ def solve_routing(grid, src_coor, dest_coor):
                 if (len(path_surround[tuple(src_cell)]) == 0):
                     del path_surround[tuple(src_cell)]
                     path_cells.remove(src_cell)
-                    src_cell = path_cells[-1]
+                    if (len(path_cells) == 0):
+                        break
+                    else:
+                        src_cell = path_cells[-1]
                 temp_src_cell = path_surround[tuple(src_cell)][0]
                 src_dist = float("inf")
                 for src_pt in path_surround[tuple(src_cell)]:
@@ -134,20 +139,13 @@ def solve_routing(grid, src_coor, dest_coor):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--in_path', help='path to input json', default='inputs/test1.json')
-    parser.add_argument('--out_dir', help='path to output json', default='outputs/')
-    
-    args = parser.parse_args()
+    grid, src_coor, dest_coor = read_input()
 
-    if not os.path.isdir(args.out_dir):
-        os.mkdir(args.out_dir)
+    assert len(grid) in (1, 2), \
+        f'expected number of layers to be 1 or 2, found {grid.shape[0]}'
 
-    grid, src_coor, dest_coor = read_input(args.in_path)
+    path_exists, path_length, path_coor = solve_routing(
+        grid, src_coor, dest_coor
+    )
 
-    if len(grid) == 1 or len(grid) == 2:
-        path_exists, path_length, path_coor = solve_routing(grid, src_coor, dest_coor)
-    else:
-        print("Invalid depth!")
-
-    write_output(args.out_dir, path_exists, path_length, path_coor)
+    write_output(path_exists, path_length, path_coor)

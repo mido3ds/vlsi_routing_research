@@ -5,8 +5,8 @@ Requirements:
     - python3 3.8.2
     - python3-pip 20.0.2
     $ pip3 install --user numpy
-For help: python gen-input --help
-Example: python gen-input -d 50 -h 50,100 -w 100,10000 -n 100 -v 5 > inputs/test1.json
+For help: python gen-input.py --help
+Example: python gen-input.py -d 50 -h 50,100 -w 100,10000 -n 100 -v 5 > inputs/test1.json
 '''
 import argparse
 import json
@@ -46,12 +46,12 @@ def parse_args():
     args.v = rand_from_str(args.v)
 
     if args.n is None:
-        args.n = random.randint(1, args.h*args.w-1)
+        args.n = random.randint(1, args.h*args.w-1-args.v)
     else:
         args.n = rand_from_str(args.n)
 
     assert args.w > 0 and args.h > 0 and args.d > 0 and args.n > 0, 'all numbers must be non negative'
-    assert args.n < (args.w * args.h) - 1,\
+    assert args.n <= (args.w * args.h) - 1,\
         'cant fit the number of destination cells'
     assert args.v <= (args.w * args.h) - 1 - args.n,\
         f'no avaialable area for {args.v} VIAs, only have {(args.w * args.h) - 1 - args.n}'
@@ -90,6 +90,11 @@ def add_vias(grid, v, h, w, src_coor, dest_coor):
     return grid
 
 
+def clear_obstacle(a: [int], grid):
+    grid[a[0]][a[1]][a[2]] = 0
+    return grid
+
+
 if __name__ == "__main__":
     args = parse_args()
 
@@ -98,5 +103,9 @@ if __name__ == "__main__":
     dest_coor = [rand_coord(args.d, args.h, args.w) for _ in range(args.n)]
     if args.d > 1:
         grid = add_vias(grid, args.v, args.h, args.w, src_coor, dest_coor)
+
+    grid = clear_obstacle(src_coor, grid)
+    for a in dest_coor:
+        grid = clear_obstacle(a, grid)
 
     write_out(grid.tolist(), src_coor, dest_coor)
