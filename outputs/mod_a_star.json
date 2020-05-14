@@ -1,1 +1,1 @@
-{"path_exists": [true, false], "path_length": [4, 0], "path_coor": [[[0, 12, 11], [0, 12, 12], [0, 13, 12], [0, 14, 12]], []]}
+{"path_exists": [false, true, false, false], "path_length": [0, 4, 0, 0], "path_coor": [[], [[0, 12, 11], [0, 12, 12], [0, 13, 12], [0, 14, 12]], [], []]}

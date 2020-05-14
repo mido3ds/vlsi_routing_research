@@ -130,7 +130,7 @@ def solve_routing(grid, src_coor, dest_coor):
                 break
         
         # check if path isn't found
-        if path_found:
+        if not path_found:
             path_exists.append(False)
             path_length.append(0)
             path_coor.append([])
