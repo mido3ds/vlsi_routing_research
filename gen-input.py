@@ -51,7 +51,7 @@ def parse_args():
         args.n = rand_from_str(args.n)
 
     assert args.w > 0 and args.h > 0 and args.d > 0 and args.n > 0, 'all numbers must be non negative'
-    assert args.n < (args.w * args.h) - 1,\
+    assert args.n <= (args.w * args.h) - 1,\
         'cant fit the number of destination cells'
     assert args.v <= (args.w * args.h) - 1 - args.n,\
         f'no avaialable area for {args.v} VIAs, only have {(args.w * args.h) - 1 - args.n}'
