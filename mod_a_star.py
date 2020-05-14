@@ -36,7 +36,7 @@ def get_surroundings(src_pt, is_via, height, width):
         surround_pts.append([src_pt[0],src_pt[1]+1,src_pt[2]])
     if (src_pt[2]-1 >= 0):
         surround_pts.append([src_pt[0],src_pt[1],src_pt[2]-1])
-    if (src_pt[1]+1 < width):
+    if (src_pt[2]+1 < width):
         surround_pts.append([src_pt[0],src_pt[1],src_pt[2]+1])
     if is_via:
         surround_pts.append([abs(src_pt[0]-1),src_pt[1],src_pt[2]])
@@ -60,11 +60,14 @@ def solve_routing(grid, src_coor, dest_coor):
     for dest_pt in dest_coor:
         print("Routing new destination")
         temp_src_points = copy.deepcopy(src_points)
+        path_found = False
 
         # loop for destination or complete blockage
         while(True):
             path_cells = [] # cells along path from source to destination
             # find closest source cell
+            if (len(temp_src_points) == 0):
+                break
             src_cell = temp_src_points[0]
             src_dist = float("inf")
             for src_pt in temp_src_points:
@@ -76,7 +79,6 @@ def solve_routing(grid, src_coor, dest_coor):
 
             # loop for destination hit
             path_surround = dict() # all surroundings of current path
-            path_found = False
             while(True):
                 # break of destination hit
                 if is_equal(src_cell, dest_pt):
@@ -88,6 +90,10 @@ def solve_routing(grid, src_coor, dest_coor):
                     surround_pts = get_surroundings(src_cell, is_via, len(grid[0]), len(grid[0][0]))
                     path_surround[tuple(src_cell)] = surround_pts
                 # loop to get closest surrounding to destination
+                if (len(path_surround[tuple(src_cell)]) == 0):
+                    del path_surround[tuple(src_cell)]
+                    path_cells.remove(src_cell)
+                    src_cell = path_cells[-1]
                 temp_src_cell = path_surround[tuple(src_cell)][0]
                 src_dist = float("inf")
                 for src_pt in path_surround[tuple(src_cell)]:
@@ -103,7 +109,10 @@ def solve_routing(grid, src_coor, dest_coor):
                 else:
                     del path_surround[tuple(src_cell)]
                     path_cells.remove(src_cell)
-                    src_cell = path_cells[-1]
+                    if (len(path_cells) == 0):
+                        break
+                    else:
+                        src_cell = path_cells[-1]
 
             # check if a path is found
             if path_found:
@@ -113,6 +122,13 @@ def solve_routing(grid, src_coor, dest_coor):
                 path_coor.append(path_cells)
                 # add current path to source points
                 src_points.extend(path_cells)
+                break
+        
+        # check if path isn't found
+        if path_found:
+            path_exists.append(False)
+            path_length.append(0)
+            path_coor.append([])
 
     return path_exists, path_length, path_coor
 
