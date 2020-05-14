@@ -46,7 +46,7 @@ def parse_args():
     args.v = rand_from_str(args.v)
 
     if args.n is None:
-        args.n = random.randint(1, args.h*args.w-1)
+        args.n = random.randint(1, args.h*args.w-1-args.v)
     else:
         args.n = rand_from_str(args.n)
 
