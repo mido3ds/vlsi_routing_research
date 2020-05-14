@@ -1,6 +1,7 @@
 import os
 import math
 import json
+import copy 
 import argparse
 import numpy as np
 
@@ -8,7 +9,7 @@ import numpy as np
 def read_input(input_path):
     with open(input_path, 'r') as f:
         data = json.load(f)
-    return np.array(data["grid"]), np.array(data["src_coor"]), np.array(data["dest_coor"])
+    return data["grid"], data["src_coor"], data["dest_coor"]
 
 def write_output(output_dir, path_exists, path_length, path_coor):
     with open(os.path.join(output_dir, "mod_a_star.json"), 'w') as f:
@@ -20,23 +21,31 @@ def write_output(output_dir, path_exists, path_length, path_coor):
 
 # Routing Utils
 def is_equal(src_pt, dest_pt):
-    return src_pt[0] == dest_pt[0] and src_pt[1] == dest_pt[1] and src_pt[2] == dest_pt[2] 
+    return src_pt[0] == dest_pt[0] and \
+        src_pt[1] == dest_pt[1] and \
+        src_pt[2] == dest_pt[2] 
 
 def get_cell_val(grid, pt):
-    return grid[pt[0],pt[1],pt[2]]
+    return grid[pt[0]][pt[1]][pt[2]]
 
-def get_surroundings(src_pt, is_via):
-    surround_pts = [np.array([src_pt[0],src_pt[1]-1,src_pt[2]]),
-                    np.array([src_pt[0],src_pt[1]+1,src_pt[2]]),
-                    np.array([src_pt[0],src_pt[1],src_pt[2]-1]),
-                    np.array([src_pt[0],src_pt[1],src_pt[2]+1])]
+def get_surroundings(src_pt, is_via, height, width):
+    surround_pts = []
+    if (src_pt[1]-1 >= 0):
+        surround_pts.append([src_pt[0],src_pt[1]-1,src_pt[2]])
+    if (src_pt[1]+1 < height):
+        surround_pts.append([src_pt[0],src_pt[1]+1,src_pt[2]])
+    if (src_pt[2]-1 >= 0):
+        surround_pts.append([src_pt[0],src_pt[1],src_pt[2]-1])
+    if (src_pt[1]+1 < width):
+        surround_pts.append([src_pt[0],src_pt[1],src_pt[2]+1])
     if is_via:
-        surround_pts.append(np.array([abs(src_pt[0]-1),src_pt[1],src_pt[2]]))
+        surround_pts.append([abs(src_pt[0]-1),src_pt[1],src_pt[2]])
     return surround_pts
 
 def calc_euclid_dist(src_pt, dest_pt):
-    pt_diff = src_pt - dest_pt
-    return math.sqrt(pt_diff[0]**2 + pt_diff[1]**2 + pt_diff[2]**2)
+    return math.sqrt((src_pt[0]-dest_pt[0])**2 + \
+                    (src_pt[1]-dest_pt[1])**2 + \
+                    (src_pt[2]-dest_pt[2])**2)
 
 # Routing
 def solve_routing(grid, src_coor, dest_coor):
@@ -46,35 +55,64 @@ def solve_routing(grid, src_coor, dest_coor):
     path_exists = []
     path_length = []
     path_coor = []
+
     # loop over all destinations
-    for dest_pt in list(dest_coor):
+    for dest_pt in dest_coor:
         print("Routing new destination")
-        # find closest source cell
-        path_cells = []
-        src_cell = src_points[0]
-        src_dist = float("inf")
-        for src_pt in src_points:
-            if calc_euclid_dist(src_pt, dest_pt) < src_dist:
-                src_cell = src_pt
-                src_dist = calc_euclid_dist(src_pt, dest_pt)
-        path_cells.append(src_cell.tolist())
-        # loop till destination hit
+        temp_src_points = copy.deepcopy(src_points)
+
+        # loop for destination or complete blockage
         while(True):
-            if is_equal(src_cell, dest_pt):
-                break
-            is_via = (get_cell_val(grid, src_cell) == 2)
-            surround_pts = get_surroundings(src_cell, is_via)
-            src_cell = surround_pts[0]
+            path_cells = [] # cells along path from source to destination
+            # find closest source cell
+            src_cell = temp_src_points[0]
             src_dist = float("inf")
-            for src_pt in surround_pts:
+            for src_pt in temp_src_points:
                 if calc_euclid_dist(src_pt, dest_pt) < src_dist:
                     src_cell = src_pt
                     src_dist = calc_euclid_dist(src_pt, dest_pt)
-            path_cells.append(src_cell.tolist())
-        # append path cells to output
-        path_exists.append(True)
-        path_length.append(len(path_cells))
-        path_coor.append(path_cells)
+            path_cells.append(src_cell)
+            temp_src_points.remove(src_cell)
+
+            # loop for destination hit
+            path_surround = dict() # all surroundings of current path
+            path_found = False
+            while(True):
+                # break of destination hit
+                if is_equal(src_cell, dest_pt):
+                    path_found = True
+                    break
+                # check is cell is already visited
+                if tuple(src_cell) not in path_surround.keys():
+                    is_via = (get_cell_val(grid, src_cell) == 2)
+                    surround_pts = get_surroundings(src_cell, is_via, len(grid[0]), len(grid[0][0]))
+                    path_surround[tuple(src_cell)] = surround_pts
+                # loop to get closest surrounding to destination
+                temp_src_cell = path_surround[tuple(src_cell)][0]
+                src_dist = float("inf")
+                for src_pt in path_surround[tuple(src_cell)]:
+                    if calc_euclid_dist(src_pt, dest_pt) < src_dist and \
+                        get_cell_val(grid, src_pt) != 1 and \
+                        tuple(src_pt) not in path_surround.keys():
+                        temp_src_cell = src_pt
+                        src_dist = calc_euclid_dist(src_pt, dest_pt)
+                if src_dist != float("inf"):
+                    path_cells.append(temp_src_cell)
+                    path_surround[tuple(src_cell)].remove(temp_src_cell)
+                    src_cell = temp_src_cell
+                else:
+                    del path_surround[tuple(src_cell)]
+                    path_cells.remove(src_cell)
+                    src_cell = path_cells[-1]
+
+            # check if a path is found
+            if path_found:
+                # append path cells to output
+                path_exists.append(True)
+                path_length.append(len(path_cells))
+                path_coor.append(path_cells)
+                # add current path to source points
+                src_points.extend(path_cells)
 
     return path_exists, path_length, path_coor
 
@@ -91,7 +129,7 @@ if __name__ == "__main__":
 
     grid, src_coor, dest_coor = read_input(args.in_path)
 
-    if grid.shape[0] == 1 or grid.shape[0] == 2:
+    if len(grid) == 1 or len(grid) == 2:
         path_exists, path_length, path_coor = solve_routing(grid, src_coor, dest_coor)
     else:
         print("Invalid depth!")
