@@ -38,9 +38,6 @@ class Point(NamedTuple):
         # ignores the `d`
         return abs(self.h - b.h) + abs(self.w - b.w)
 
-    def tolist(self) -> List[int]:
-        return [self.d, self.h, self.w]
-
 
 class Line(NamedTuple):
     a: Point
@@ -148,6 +145,6 @@ if __name__ == "__main__":
     for path in paths:
         out['path_exists'].append(len(path.points) != 0)
         out['path_length'].append(path.len())
-        out['path_coor'].append([x.tolist() for x in path.points])
+        out['path_coor'].append([list(x) for x in path.points])
 
     json.dump(out, sys.stdout)
