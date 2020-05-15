@@ -20,6 +20,10 @@ def is_cell(v: int, cell_type: int) -> bool:
     return (v >> cell_type) & 1 == 1
 
 
+def is_src_on_dest(v: int) -> bool:
+    return (v >> SRC) & 0b11 == 0b11
+
+
 def put_cell(v: int, cell_type: int) -> int:
     # i.e. put_cell(0, SRC) => 4
     return v | 1 << cell_type
@@ -52,6 +56,18 @@ class Line(NamedTuple):
         else:
             for w in range(self.a.w, self.b.w+1):
                 yield self.a._replace(w=w)
+
+    def intersection(self, l2) -> Point:
+        sv, l2v = self.is_vertical(), l2.is_vertical()
+        assert (sv and not l2v) or (not sv and l2v),\
+            f'lines {self}, {l2} must be one vertical and the other horizontal, not both'
+
+        x, y = (self, l2) if sv else (l2, self)
+
+        assert x.a.h <= y.a.h and x.b.h >= y.b.h and y.a.w <= x.a.w and y.b.w >= x.b.w,\
+            f'lines {x},{y} are not intersecting'
+
+        return Point(d=l2.a.d, w=x.a.w, h=y.a.h)
 
 
 class Path(NamedTuple):
