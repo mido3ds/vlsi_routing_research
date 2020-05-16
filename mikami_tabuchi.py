@@ -47,6 +47,9 @@ class Point(NamedTuple):
         l[i] = value
         return Point._make(l)
 
+    def __repr__(self):
+        return f'p({self.d},{self.h},{self.w})'
+
 
 class Line(NamedTuple):
     a: Point
@@ -86,26 +89,47 @@ class Line(NamedTuple):
             yield self.a._replace_i(dim, x)
 
     def intersection(self, l2: Line) -> Point:
-        sv, l2v = self.is_vertical(), l2.is_vertical()
-        assert (sv and not l2v) or (not sv and l2v),\
-            f'lines {self}, {l2} must be one vertical and the other horizontal, not both'
+        # https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line
+        x1, x2, x3, x4 = self.a.h, self.b.h, l2.a.h, l2.b.h
+        y1, y2, y3, y4 = self.a.w, self.b.w, l2.a.w, l2.b.w
 
-        x, y = (self, l2) if sv else (l2, self)
+        deno = (x1-x2) * (y3-y4) - (y1-y2) * (x3-x4)
 
-        assert x.a.h <= y.a.h and x.b.h >= y.b.h and y.a.w <= x.a.w and y.b.w >= x.b.w,\
-            f'lines {x},{y} are not intersecting'
+        assert deno != 0, f'lines {self},{l2} are parallel'
 
-        return Point(d=self.a.d, w=x.a.w, h=y.a.h)
+        t = (x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)
+        t /= deno
+        if t >= 0 and t <= 1:
+            return Point(d=self.a.d, h=x1+t*(x2-x1), w=y1+t*(y2-y1))
+
+        u = (x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)
+        u /= deno
+        if u >= 0 and u <= 1:
+            return Point(d=self.a.d, h=x3+u*(x4-x3), w=y3+u*(y4-y3))
+
+        raise AssertionError(f'lines {self},{l2} are not intersecting')
 
     def intersects(self, l2: Line) -> bool:
-        sv, l2v = self.is_vertical(), l2.is_vertical()
+        # https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line
+        x1, x2, x3, x4 = self.a.h, self.b.h, l2.a.h, l2.b.h
+        y1, y2, y3, y4 = self.a.w, self.b.w, l2.a.w, l2.b.w
 
-        if not ((sv and not l2v) or (not sv and l2v)):
+        deno = (x1-x2) * (y3-y4) - (y1-y2) * (x3-x4)
+
+        if deno == 0:
             return False
 
-        x, y = (self, l2) if sv else (l2, self)
+        t = (x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)
+        t /= deno
+        if t >= 0 and t <= 1:
+            return True
 
-        return x.a.h <= y.a.h and x.b.h >= y.b.h and y.a.w <= x.a.w and y.b.w >= x.b.w
+        u = (x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)
+        u /= deno
+        if u >= 0 and u <= 1:
+            return True
+
+        return False
 
     def __contains__(self, c: Point):
         return c.d == self.a.d and \
@@ -123,6 +147,9 @@ class Line(NamedTuple):
             assert parent is not None
 
         return parent, lines
+
+    def __repr__(self):
+        return f'l({self.a}->{self.b}~{self.p})'
 
 
 Path = List[Point]
