@@ -1,7 +1,7 @@
 #!/bin/env python3
 import json
 import sys
-from typing import NamedTuple, List, Generator
+from typing import NamedTuple, List, Generator, Union
 
 import numpy as np
 
@@ -38,6 +38,17 @@ class Point(NamedTuple):
         # ignores the `d`
         return abs(self.h - b.h) + abs(self.w - b.w)
 
+    def _replace_i(self, i: int, value: int):
+        l = list(self)
+        l[i] = value
+        return Point._make(l)
+
+    def __eq__(self, a) -> bool:
+        for i in range(3):
+            if self[i] != a[i]:
+                return False
+        return True
+
 
 class Line(NamedTuple):
     a: Point
@@ -46,13 +57,22 @@ class Line(NamedTuple):
     def is_vertical(self) -> bool:
         return self.a.d == self.b.d and self.a.w == self.b.w
 
-    def points(self):
-        if self.is_vertical():
-            for h in range(self.a.h, self.b.h+1):
-                yield self.a._replace(h=h)
-        else:
-            for w in range(self.a.w, self.b.w+1):
-                yield self.a._replace(w=w)
+    def dim(self) -> int:
+        assert self.a != self.b, 'not line'
+
+        for i in range(3):
+            if self.a[i] != self.b[i]:
+                return i
+
+    def points(self, inclusive=True):
+        dim = self.dim()
+
+        step = 1 if self.b[dim] >= self.a[dim] else -1
+        a = self.a[dim] if inclusive else self.a[dim]+step
+        b = self.b[dim]+step if inclusive else self.b[dim]
+
+        for x in range(a, b, step):
+            yield self.a._replace_i(dim, x)
 
     def intersection(self, l2) -> Point:
         sv, l2v = self.is_vertical(), l2.is_vertical()
@@ -66,6 +86,10 @@ class Line(NamedTuple):
 
         return Point(d=l2.a.d, w=x.a.w, h=y.a.h)
 
+    def __contains__(self, c):
+        return c.d == self.a.d and \
+            ((c.h == self.a.h == self.b.h) or (c.w == self.a.w == self.b.w))
+
 
 class Path(NamedTuple):
     points: List[Point]
@@ -77,51 +101,76 @@ class Path(NamedTuple):
         return s
 
 
-def horizontal_line(grid: np.ndarray, p: Point, cell_type: int) -> (Line, np.ndarray):
-    max_w = p.w
-    min_w = p.w
+def add_line(grid: np.ndarray, p: Point, cell_type: int, dim: int) -> Line:
+    assert dim in (1, 2), 'dim should be either 1 or 2'
 
-    for w in range(p.w, grid.shape[2]):
-        if is_cell(grid[p.d, p.h, w], OBSTACLE):
-            break
+    grid[p] = put_cell(grid[p], cell_type)
 
-        max_w = w
-        grid[p.d, p.h, w] = put_cell(grid[p.d, p.h, w], cell_type)
+    max_x = p[dim]
+    min_x = p[dim]
 
-    for w in range(p.w, 0, -1):
-        if is_cell(grid[p.d, p.h, w], OBSTACLE):
-            break
+    # possible lines
+    lines = [
+        #     p -->
+        Line(p, p._replace_i(dim, grid.shape[dim])),
+        # <-- p
+        Line(p, p._replace_i(dim, -1))
+    ]
 
-        min_w = w
-        grid[p.d, p.h, w] = put_cell(grid[p.d, p.h, w], cell_type)
+    for line in lines:
+        for p2 in line.points(inclusive=False):
+            # TODO: extend over vias with recursion
+            if is_cell(grid[p2], OBSTACLE):
+                break
 
-    return Line(p._replace(w=min_w), p._replace(w=max_w)), grid
+            max_x = p2[dim]
+            grid[p2] = put_cell(grid[p2], cell_type)
 
-
-def vertical_line(grid: np.ndarray, p: Point, cell_type: int) -> (Line, np.ndarray):
-    max_h = p.h
-    min_h = p.h
-
-    for h in range(p.h, grid.shape[1]):
-        if is_cell(grid[p.d, h, p.w], OBSTACLE):
-            break
-
-        max_h = h
-        grid[p.d, h, p.w] = put_cell(grid[p.d, h, p.w], cell_type)
-
-    for h in range(p.h, 0, -1):
-        if is_cell(grid[p.d, h, p.w], OBSTACLE):
-            break
-
-        min_h = h
-        grid[p.d, h, p.w] = put_cell(grid[p.d, h, p.w], cell_type)
-
-    return Line(p._replace(h=min_h), p._replace(h=max_h)), grid
+    return Line(p._replace_i(dim, min_x), p._replace_i(dim, max_x))
 
 
-def solve(grid, src_coor, dest_coor) -> List[Path]:
+def solve_one_target(grid: np.ndarray, src_coor: Point, dest_coor: Point, src_levels: List[List[Line]]) -> Path:
+    # # levels[0] = src_levels, levels[1] = dest_levels
+    # levels = [src_levels, []]
+
+    # # start with vert+hor lines for target
+    # # each line has T as parent backtracking point
+    # levels[1].append(horizontal_line(...))
+    # levels[1].append(vertical_line(...))
+
+    # # while no new craeted lines for both S and T:
+    # while len(levels[0][-1]) != 0 and len(levels[0][-1]) != 0
+    #   for i in (0,1):
+    #       # create new level
+    #       levels[i].append([])
+
+    #       # for each line l0 in previous level:
+    #       for l0 in levels[i][-2]:
+    #           # for each point on line:
+    #           for p in l0.points():
+    #               # create perpend line l1, where its parent is l0
+
+    #               # if crossed point:
+    #                   # search for its line L3
+    #                   # bactrack l1 to S and L3 to T (or vice versa)
+    #                   # create path of backtracking points
+    #                   # clean grid of dest
+    #                   return path
+    # # clean grid of dest
+    # return Path([])
+
     # TODO
-    return [Path([Point(5, 6, 7), Point(1, 2, 3)])] * len(dest_coor)
+    return Path([Point(5, 6, 7), Point(1, 2, 3)])
+
+
+def solve(grid: np.ndarray, src_coor: Point, dest_coor: List[Point]) -> List[Path]:
+    # TODO
+    # start with vert+hor lines for src
+    # each line has S as parent backtracking point
+
+    src_levels: List[List[Line]] = []
+
+    return [solve_one_target(grid, src_coor, dest, src_levels) for dest in dest_coor]
 
 
 if __name__ == "__main__":
