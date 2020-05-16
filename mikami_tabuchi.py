@@ -31,8 +31,10 @@ def put_cell(v: int, cell_type: int) -> int:
     return v | (1 << cell_type)
 
 
-def remove_dest(grid: np.ndarray) -> np.ndarray:
-    return np.bitwise_and(grid, np.array(~(1 << DEST), dtype=grid.dtype), out=grid)
+def dest_to_src(grid: np.ndarray) -> np.ndarray:
+    grid[is_cell(grid, DEST)] |= np.array(1 << SRC, dtype=grid.dtype)
+    grid[is_cell(grid, DEST)] &= np.array(~(1 << DEST), dtype=grid.dtype)
+    return grid
 
 
 class Point(NamedTuple):
@@ -40,20 +42,10 @@ class Point(NamedTuple):
     h: int
     w: int
 
-    def dist(self, b: Point) -> int:
-        # ignores the `d`
-        return abs(self.h - b.h) + abs(self.w - b.w)
-
     def _replace_i(self, i: int, value: int):
         l = list(self)
         l[i] = value
         return Point._make(l)
-
-    def __eq__(self, a: Point) -> bool:
-        for i in range(3):
-            if self[i] != a[i]:
-                return False
-        return True
 
 
 class Line(NamedTuple):
@@ -70,6 +62,17 @@ class Line(NamedTuple):
         for i in range(3):
             if self.a[i] != self.b[i]:
                 return i
+        return 1
+
+    def perpend_dim(self) -> int:
+        '''
+        return dim of line perpendicular to this
+        1 -> 2
+        2 -> 1
+        '''
+        if self.dim() == 1:
+            return 2
+
         return 1
 
     def points(self, inclusive=True):
@@ -92,7 +95,7 @@ class Line(NamedTuple):
         assert x.a.h <= y.a.h and x.b.h >= y.b.h and y.a.w <= x.a.w and y.b.w >= x.b.w,\
             f'lines {x},{y} are not intersecting'
 
-        return Point(d=l2.a.d, w=x.a.w, h=y.a.h)
+        return Point(d=self.a.d, w=x.a.w, h=y.a.h)
 
     def __contains__(self, c: Point):
         return c.d == self.a.d and \
@@ -133,7 +136,7 @@ def build_path(a: Line, b: Line) -> Path:
     return [src] + intersect_lines(src_to_a + b_to_dst) + [dst]
 
 
-def add_lines(grid: np.ndarray, p0: Point, cell_type: int, dim: int, enable_recursion=True) -> List[Line]:
+def add_lines(grid: np.ndarray, p0: Point, cell_type: int, dim: int, parent: Union[Point, Line], enable_recursion=True) -> (List[Line], bool):
     assert dim in (1, 2), 'dim should be either 1 or 2'
     assert not is_cell(grid[p0], OBSTACLE), 'started line with obstacle point'
 
@@ -141,12 +144,15 @@ def add_lines(grid: np.ndarray, p0: Point, cell_type: int, dim: int, enable_recu
     max_x = p0[dim]
     min_x = p0[dim]
 
+    def new_line():
+        return Line(p0._replace_i(dim, min_x), p0._replace_i(dim, max_x), parent)
+
     # 2 possible directions
     points_set = [
         # points in [..., p0]
-        Line(p0, p0._replace_i(dim, 0)).points(inclusive=True),
+        Line(p0, p0._replace_i(dim, 0), None).points(True),
         # points in (p0,...]
-        Line(p0, p0._replace_i(dim, grid.shape[dim])).points(inclusive=False)
+        Line(p0, p0._replace_i(dim, grid.shape[dim]), None).points(False)
     ]
 
     for points in points_set:
@@ -155,16 +161,24 @@ def add_lines(grid: np.ndarray, p0: Point, cell_type: int, dim: int, enable_recu
                 break
 
             if enable_recursion and is_cell(grid[p1], VIA):
-                lines += add_lines(
+                new_lines, crossed = add_lines(
                     grid,
                     p1._replace(d=1-p1.d),
-                    cell_type, dim, enable_recursion=False
+                    cell_type, dim, new_line(), enable_recursion=False
                 )
+
+                if crossed:
+                    return new_lines, True
+                else:
+                    lines += new_lines
 
             max_x = p1[dim]
             grid[p1] = put_cell(grid[p1], cell_type)
 
-    return lines + [Line(p0._replace_i(dim, min_x), p0._replace_i(dim, max_x))]
+            if is_src_on_dest(grid[p1]):
+                return [new_line()], True
+
+    return lines + [new_line()], False
 
 
 def solve_one_target(grid: np.ndarray, src_coor: Point, dest_coor: Point, src_levels: List[List[Line]]) -> Path:
@@ -173,12 +187,12 @@ def solve_one_target(grid: np.ndarray, src_coor: Point, dest_coor: Point, src_le
 
     # # start with vert+hor lines for target
     # # each line has T as parent backtracking point
-    # levels[1].append(add_lines(grid, dest_coor, DEST, 1))
-    # levels[1].append(add_lines(grid, dest_coor, DEST, 2))
+    # levels[1].append(add_lines(grid, dest_coor, DEST, 1, dest_coor))
+    # levels[1].append(add_lines(grid, dest_coor, DEST, 2, dest_coor))
 
     # # while no new craeted lines for both S and T:
     # while len(levels[0][-1]) != 0 and len(levels[0][-1]) != 0
-    #   for i in (0,1):
+    #   for i, cell_type in enumerate((SRC, DEST)):
     #       # create new level
     #       levels[i].append([])
 
@@ -186,17 +200,24 @@ def solve_one_target(grid: np.ndarray, src_coor: Point, dest_coor: Point, src_le
     #       for l0 in levels[i][-2]:
     #           # for each point on line:
     #           for p in l0.points():
-    #               # create perpend line l1, where its parent is l0
+    #               # create perp_l0, where its parent is l0
+    #               perp_l0, crossed = add_lines(grid, p, cell_type, l0.perpend_dim(), l0)
+    #               levels[i][-1] += perp_l0
 
-    #               # if crossed point:
-    #                   # search for its line L3
-    #                   # bactrack l1 to S and L3 to T (or vice versa)
-    #                   # create path of backtracking points
+    #               if crossed:
+    #                   # search for its line l3 TODO
+    #
+    #                   # bactrack perp_l0 to S and l3 to T and create path of backtracking points
+    #                   build_path(perp_l0[0], l3)
+    #
+    #                   # merge dest last level with src last level
+    #                   levels[0][-1] += levels[1][-1]
+    #
     #                   # clean grid of dest
-    #                   grid = remove_dest(grid)
+    #                   grid = dest_to_src(grid)
     #                   return path
     # # clean grid of dest
-    # grid = remove_dest(grid)
+    # grid = dest_to_src(grid)
     # return []
 
     # TODO
