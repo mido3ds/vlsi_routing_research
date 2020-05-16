@@ -19,7 +19,7 @@ DEST = 3
 
 def is_cell(v: int, cell_type: int) -> bool:
     # i.e. is_cell(2, VIA) => True
-    return (v >> cell_type) & 1 == 1
+    return v & (1 << cell_type) != 0
 
 
 def is_src_on_dest(v: int) -> bool:
@@ -28,7 +28,11 @@ def is_src_on_dest(v: int) -> bool:
 
 def put_cell(v: int, cell_type: int) -> int:
     # i.e. put_cell(0, SRC) => 4
-    return v | 1 << cell_type
+    return v | (1 << cell_type)
+
+
+def remove_dest(grid: np.ndarray) -> np.ndarray:
+    return np.bitwise_and(grid, np.array(~(1 << DEST), dtype=grid.dtype), out=grid)
 
 
 class Point(NamedTuple):
@@ -189,8 +193,10 @@ def solve_one_target(grid: np.ndarray, src_coor: Point, dest_coor: Point, src_le
     #                   # bactrack l1 to S and L3 to T (or vice versa)
     #                   # create path of backtracking points
     #                   # clean grid of dest
+    #                   grid = remove_dest(grid)
     #                   return path
     # # clean grid of dest
+    # grid = remove_dest(grid)
     # return []
 
     # TODO
