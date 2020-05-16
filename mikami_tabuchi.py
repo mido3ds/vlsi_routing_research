@@ -58,11 +58,10 @@ class Line(NamedTuple):
         return self.a.d == self.b.d and self.a.w == self.b.w
 
     def dim(self) -> int:
-        assert self.a != self.b, 'not line'
-
         for i in range(3):
             if self.a[i] != self.b[i]:
                 return i
+        return 1
 
     def points(self, inclusive=True):
         dim = self.dim()
@@ -101,32 +100,38 @@ class Path(NamedTuple):
         return s
 
 
-def add_line(grid: np.ndarray, p: Point, cell_type: int, dim: int) -> Line:
+def add_lines(grid: np.ndarray, p0: Point, cell_type: int, dim: int, enable_recursion=True) -> List[Line]:
     assert dim in (1, 2), 'dim should be either 1 or 2'
+    assert not is_cell(grid[p0], OBSTACLE), 'started line with obstacle point'
 
-    grid[p] = put_cell(grid[p], cell_type)
+    lines = []
+    max_x = p0[dim]
+    min_x = p0[dim]
 
-    max_x = p[dim]
-    min_x = p[dim]
-
-    # possible lines
-    lines = [
-        #     p -->
-        Line(p, p._replace_i(dim, grid.shape[dim])),
-        # <-- p
-        Line(p, p._replace_i(dim, -1))
+    # 2 possible directions
+    points_set = [
+        # points in [..., p0]
+        Line(p0, p0._replace_i(dim, 0)).points(inclusive=True),
+        # points in (p0,...]
+        Line(p0, p0._replace_i(dim, grid.shape[dim])).points(inclusive=False)
     ]
 
-    for line in lines:
-        for p2 in line.points(inclusive=False):
-            # TODO: extend over vias with recursion
-            if is_cell(grid[p2], OBSTACLE):
+    for points in points_set:
+        for p1 in points:
+            if is_cell(grid[p1], OBSTACLE):
                 break
 
-            max_x = p2[dim]
-            grid[p2] = put_cell(grid[p2], cell_type)
+            if enable_recursion and is_cell(grid[p1], VIA):
+                lines += add_lines(
+                    grid,
+                    p1._replace(d=1-p1.d),
+                    cell_type, dim, enable_recursion=False
+                )
 
-    return Line(p._replace_i(dim, min_x), p._replace_i(dim, max_x))
+            max_x = p1[dim]
+            grid[p1] = put_cell(grid[p1], cell_type)
+
+    return lines + [Line(p0._replace_i(dim, min_x), p0._replace_i(dim, max_x))]
 
 
 def solve_one_target(grid: np.ndarray, src_coor: Point, dest_coor: Point, src_levels: List[List[Line]]) -> Path:
