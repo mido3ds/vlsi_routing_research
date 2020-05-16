@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 import sys
-from typing import Generator, List, NamedTuple, Union
+from typing import Generator, List, NamedTuple, Union, Optional
 
 import numpy as np
 
@@ -42,7 +42,7 @@ class Point(NamedTuple):
     h: int
     w: int
 
-    def _replace_i(self, i: int, value: int):
+    def _replace_i(self, i: int, value: int) -> Point:
         l = list(self)
         l[i] = value
         return Point._make(l)
@@ -96,6 +96,16 @@ class Line(NamedTuple):
             f'lines {x},{y} are not intersecting'
 
         return Point(d=self.a.d, w=x.a.w, h=y.a.h)
+
+    def intersects(self, l2: Line) -> bool:
+        sv, l2v = self.is_vertical(), l2.is_vertical()
+
+        if not ((sv and not l2v) or (not sv and l2v)):
+            return False
+
+        x, y = (self, l2) if sv else (l2, self)
+
+        return x.a.h <= y.a.h and x.b.h >= y.b.h and y.a.w <= x.a.w and y.b.w >= x.b.w
 
     def __contains__(self, c: Point):
         return c.d == self.a.d and \
@@ -178,60 +188,72 @@ def add_lines(grid: np.ndarray, p0: Point, cell_type: int, dim: int, parent: Uni
             if is_src_on_dest(grid[p1]):
                 return [new_line()], True
 
+    if min_x == max_x:
+        return lines, False
+
     return lines + [new_line()], False
 
 
+def search_in_levels(l: Line, levels: List[List[Line]]) -> Optional[Line]:
+    for level in levels:
+        for l2 in level:
+            if l.intersects(l2):
+                return l2
+
+
 def solve_one_target(grid: np.ndarray, src_coor: Point, dest_coor: Point, src_levels: List[List[Line]]) -> Path:
-    # # levels[0] = src_levels, levels[1] = dest_levels
-    # levels = [src_levels, []]
+    # levels[0] = src_levels, levels[1] = dest_levels
+    levels = [src_levels, [[]]]
 
-    # # start with vert+hor lines for target
-    # # each line has T as parent backtracking point
-    # levels[1].append(add_lines(grid, dest_coor, DEST, 1, dest_coor))
-    # levels[1].append(add_lines(grid, dest_coor, DEST, 2, dest_coor))
+    # start with vert+hor lines for target
+    # each line has T as parent backtracking point
+    levels[1][0] += add_lines(grid, dest_coor, DEST, 1, dest_coor)[0]
+    levels[1][0] += add_lines(grid, dest_coor, DEST, 2, dest_coor)[0]
 
-    # # while no new craeted lines for both S and T:
-    # while len(levels[0][-1]) != 0 and len(levels[0][-1]) != 0
-    #   for i, cell_type in enumerate((SRC, DEST)):
-    #       # create new level
-    #       levels[i].append([])
+    # while no new craeted lines for both S and T:
+    while len(levels[0][-1]) != 0 and len(levels[0][-1]) != 0:
+        for i, cell_type in enumerate((SRC, DEST)):
+            # create new level
+            levels[i].append([])
 
-    #       # for each line l0 in previous level:
-    #       for l0 in levels[i][-2]:
-    #           # for each point on line:
-    #           for p in l0.points():
-    #               # create perp_l0, where its parent is l0
-    #               perp_l0, crossed = add_lines(grid, p, cell_type, l0.perpend_dim(), l0)
-    #               levels[i][-1] += perp_l0
+            # for each line l0 in previous level:
+            for l0 in levels[i][-2]:
+                # for each point on line:
+                for p in l0.points():
+                    # create perp_l0, where its parent is l0
+                    perp_l0, crossed = add_lines(
+                        grid, p, cell_type, l0.perpend_dim(), l0
+                    )
+                    levels[i][-1] += perp_l0
 
-    #               if crossed:
-    #                   # search for its line l3 TODO
-    #
-    #                   # bactrack perp_l0 to S and l3 to T and create path of backtracking points
-    #                   build_path(perp_l0[0], l3)
-    #
-    #                   # merge dest last level with src last level
-    #                   levels[0][-1] += levels[1][-1]
-    #
-    #                   # clean grid of dest
-    #                   grid = dest_to_src(grid)
-    #                   return path
-    # # clean grid of dest
-    # grid = dest_to_src(grid)
-    # return []
+                    if crossed:
+                        # search for its line l3 in the other level
+                        l3 = search_in_levels(perp_l0[0], levels[1-i])
+                        assert l3 is not None, f'line={perp_l0[0]} doesnt intersect with levels={levels[1-i]}, i={i}'
 
-    # TODO
-    return [Point(5, 6, 7), Point(1, 2, 3)]
+                        # bactrack perp_l0 to S and l3 to T (or vice versa) and create path of backtracking points
+                        a, b = (perp_l0[0], l3) if i == 0 else (l3, perp_l0[0])
+                        path = build_path(a, b)
+
+                        # merge dest last level with src last level
+                        levels[0][-1] += levels[1][-1]
+
+                        # clean grid of dest
+                        grid = dest_to_src(grid)
+                        return path
+
+    # clean grid of dest
+    grid = dest_to_src(grid)
+    return []
 
 
 def solve(grid: np.ndarray, src_coor: Point, dest_coor: List[Point]) -> List[Path]:
-    # TODO
+    src_levels: List[List[Line]] = [[]]
+
     # start with vert+hor lines for src
     # each line has S as parent backtracking point
-    # levels[1].append(add_lines(grid, src_coor, SRC, 1))
-    # levels[1].append(add_lines(grid, src_coor, SRC, 2))
-
-    src_levels: List[List[Line]] = []
+    src_levels[0] += add_lines(grid, src_coor, SRC, 1, src_coor)[0]
+    src_levels[0] += add_lines(grid, src_coor, SRC, 2, src_coor)[0]
 
     return [solve_one_target(grid, src_coor, dest, src_levels) for dest in dest_coor]
 
