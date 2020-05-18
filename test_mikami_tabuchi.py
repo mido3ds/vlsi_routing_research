@@ -76,6 +76,78 @@ class TestIntersection(unittest.TestCase):
         l1 = Line(Point(0, 13, 11), Point(0, 3, 11), None)
         self.false_case(l0, l1)
 
+    def test_corner2(self):
+        l0 = Line(Point(0, 6, 3), Point(0, 6, 5), None)
+        l1 = Line(Point(0, 3, 2), Point(0, 14, 2), None)
+        self.false_case(l0, l1)
+
+
+class TestBacktracking(unittest.TestCase):
+    def test_basic(self):
+        p0 = Point(0, 6, 1)
+        l0 = Line(p0, Point(0, 6, 5), p0)
+        self.assertTupleEqual(l0.backtrack(), (p0, [l0]))
+
+    def test_complex(self):
+        p0 = Point(0, 6, 1)
+        l0 = Line(p0, Point(0, 6, 5), p0)
+        l1 = Line(Point(0, 3, 2), Point(0, 14, 2), l0)
+        l2 = Line(Point(0, 12, 1), Point(0, 12, 4), l1)
+        l3 = Line(Point(0, 11, 4), Point(0, 19, 4), l2)
+
+        self.assertTupleEqual(l3.backtrack(), (p0, [l3, l2, l1, l0]))
+
+    def test_none(self):
+        p0 = Point(0, 6, 1)
+        l0 = Line(p0, Point(0, 6, 5), None)
+        with self.assertRaises(AssertionError):
+            l0.backtrack()
+
+
+class TestBuiltPath(unittest.TestCase):
+    def test_basic(self):
+        # p0 -> l0
+        p0 = Point(0, 6, 1)
+        l0 = Line(p0, Point(0, 6, 5), p0)
+
+        # p1 -> l1
+        p1 = Point(0, 14, 2)
+        l1 = Line(Point(0, 3, 2), p1, p1)
+
+        # p0 -> l0,l1 -> p1
+        self.assertListEqual(build_path(l0, l1), [
+            p0, Point(0, 6, 2), p1
+        ])
+
+    def test_big(self):
+        # p0 -> l0 -> l1
+        p0 = Point(0, 6, 1)
+        l0 = Line(p0, Point(0, 6, 5), p0)
+        l1 = Line(Point(0, 3, 2), Point(0, 14, 2), l0)
+
+        # p1 -> l3 -> l2
+        p1 = Point(0, 19, 4)
+        l3 = Line(Point(0, 11, 4), p1, p1)
+        l2 = Line(Point(0, 12, 1), Point(0, 12, 4), l3)
+
+        # p0 -> l0,l1 -> l1,l2 -> l2,l3 -> p1
+        self.assertListEqual(build_path(l1, l2), [
+            p0, Point(0, 6, 2), Point(0, 12, 2), Point(0, 12, 4), p1
+        ])
+
+    def test_failure(self):
+        # p0 -> l0
+        p0 = Point(0, 6, 3)
+        l0 = Line(p0, Point(0, 6, 5), p0)
+
+        # p1 -> l1
+        p1 = Point(0, 14, 2)
+        l1 = Line(Point(0, 3, 2), p1, p1)
+
+        # p0 -> no intersection(l0,l1) ->? p1
+        with self.assertRaises(AssertionError):
+            build_path(l0, l1)
+
 
 if __name__ == "__main__":
     unittest.main()

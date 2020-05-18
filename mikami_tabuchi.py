@@ -88,10 +88,12 @@ class Line(NamedTuple):
             yield self.a._replace_i(dim, x)
 
     def intersection(self, l2: Line) -> Point:
+        assert self.intersects(l2), f'lines {self},{l2} are not intersecting'
+
         if self == l2:
             return self.a
 
-        # https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line
+        # https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#given_two_points_on_each_line
         x1, x2, x3, x4 = self.a.h, self.b.h, l2.a.h, l2.b.h
         y1, y2, y3, y4 = self.a.w, self.b.w, l2.a.w, l2.b.w
 
@@ -115,25 +117,63 @@ class Line(NamedTuple):
         if self == l2:
             return True
 
-        # https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line
-        x1, x2, x3, x4 = self.a.h, self.b.h, l2.a.h, l2.b.h
-        y1, y2, y3, y4 = self.a.w, self.b.w, l2.a.w, l2.b.w
+        def orientation(p, q, r):
+            '''
+            to find the orientation of an ordered triplet (p,q,r)
+            See https://www.geeksforgeeks.org/orientation-3-ordered-points/amp/
+            '''
+            val = (float(q.w - p.w) * (r.h - q.h)) - (float(q.h - p.h) * (r.w - q.w))
 
-        deno = (x1-x2) * (y3-y4) - (y1-y2) * (x3-x4)
+            if val > 0:
+                # clockwise orientation
+                return 1
+            elif val < 0:
+                # counterclockwise orientation
+                return 2
 
-        if deno == 0:
-            return False
+            # colinear orientation
+            return 0
 
-        t = (x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)
-        t /= deno
-        if t >= 0 and t <= 1:
+        def pts_on_segment(p, q, r):
+            '''
+            Given three colinear points p, q, r, the function checks if
+            point q lies on line segment 'pr'
+            '''
+            return ((q.h <= max(p.h, r.h)) and (q.h >= min(p.h, r.h)) and
+                    (q.w <= max(p.w, r.w)) and (q.w >= min(p.w, r.w)))
+
+        x1, y1, x2, y2 = self.a, self.b, l2.a, l2.b
+
+        # find the 4 orientations required for
+        # the general and special cases
+        o1 = orientation(x1, y1, x2)
+        o2 = orientation(x1, y1, y2)
+        o3 = orientation(x2, y2, x1)
+        o4 = orientation(x2, y2, y1)
+
+        # general case
+        if (o1 != o2) and (o3 != o4):
             return True
 
-        u = (x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)
-        u /= -deno
-        if u >= 0 and u <= 1:
+        # special Cases
+
+        # x1 , y1 and x2 are colinear and x2 lies on segment p1q1
+        if (o1 == 0) and pts_on_segment(x1, x2, y1):
             return True
 
+        # x1 , y1 and y2 are colinear and y2 lies on segment p1q1
+        if (o2 == 0) and pts_on_segment(x1, y2, y1):
+            return True
+
+        # x2 , y2 and x1 are colinear and x1 lies on segment p2q2
+        if (o3 == 0) and pts_on_segment(x2, x1, y2):
+            return True
+
+        # x2 , y2 and y1 are colinear and y1 lies on segment p2q2
+        if (o4 == 0) and pts_on_segment(x2, y1, y2):
+            return True
+
+        # if none of the cases
         return False
 
     def __contains__(self, c: Point):
