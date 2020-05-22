@@ -8,7 +8,21 @@ Automatic routing techniques are always a trade-off between optimality and speed
 In this work, we seek a good balance between performance and optimality of solution by introducing the usage of A* search for automatic routing with a modified cost function.
 
 \subsection{Formulation}
+Routing is formulated as a grid search problem, where an occupancy grid map \emph{(OGM)} is provided with some source and destination cells to be joined. The \emph{OGM} cells can have the value of $1$ for occupied cell or $0$ for empty cell. The \emph{OGM} can be of multiple levels, in case of multi-layer routing, where the cell can have a third value to indicate that the cell can be used as a VIA. 
+
+Given that problem formulation, several grid search and shortest path algorithms can be used to find the optimal path between each source and its given destinations. These algorithms can vary based on optimality and performance.
+
+The two main metrics considered in this work are path length and execution time. Path length between each source and destination cell is used as a measure of solution optimality. It's defined as the number of grid cells that lies on the deduced path.
+
+Execution time is used as a measure of algorithm performance. It's simply the total elapsed time by the algorithm to find all required paths.
 
 \subsection{Baseline}
+To measure the validity and performance of our proposed method, three main baselines are used. These baselines are well-established algorithms that are currently used in industry.
+
+\subsubsection{Maze Routing (Lee's Algorithm)}
+
+\subsubsection{Mikami-Tabuchi’s Algorithm}
+
+\subsubsection{TBD}
 
 \subsection{Modified A* Search}
