@@ -90,8 +90,13 @@ class Line(NamedTuple):
     def intersection(self, l2: Line) -> Point:
         assert self.intersects(l2), f'lines {self},{l2} are not intersecting'
 
-        if self == l2:
+        # me is a point
+        if self.a == self.b and self.a in l2:
             return self.a
+
+        # other is a point
+        if l2.a == l2.b and l2.a in self:
+            return l2.a
 
         # https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#given_two_points_on_each_line
         x1, x2, x3, x4 = self.a.h, self.b.h, l2.a.h, l2.b.h
@@ -122,7 +127,8 @@ class Line(NamedTuple):
             to find the orientation of an ordered triplet (p,q,r)
             See https://www.geeksforgeeks.org/orientation-3-ordered-points/amp/
             '''
-            val = (float(q.w - p.w) * (r.h - q.h)) - (float(q.h - p.h) * (r.w - q.w))
+            val = (float(q.w - p.w) * (r.h - q.h)) - \
+                (float(q.h - p.h) * (r.w - q.w))
 
             if val > 0:
                 # clockwise orientation

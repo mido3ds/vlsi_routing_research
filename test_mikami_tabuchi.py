@@ -81,6 +81,11 @@ class TestIntersection(unittest.TestCase):
         l1 = Line(Point(0, 3, 2), Point(0, 14, 2), None)
         self.false_case(l0, l1)
 
+    def test_point(self):
+        l0 = Line(Point(0, 0, 1), Point(0, 1, 1), None)
+        l1 = Line(Point(0, 0, 1), Point(0, 0, 1), None)
+        self.true_case(l0, l1, Point(0, 0, 1))
+
 
 class TestBacktracking(unittest.TestCase):
     def test_basic(self):
