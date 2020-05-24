@@ -7,8 +7,8 @@ from typing import Generator, List, NamedTuple, Union, Optional
 
 import numpy as np
 
-# _print = print
-# print = lambda *args, **kwargs: _print(*args, **kwargs, file=sys.stderr)
+_print = print
+print = lambda *args, **kwargs: _print(*args, **kwargs, file=sys.stderr)
 
 # cell type
 OBSTACLE = 0
