@@ -25,5 +25,4 @@ while true; do
 
     echo $PY done
     ./verify.py "$IN" "$OUT" 
-    exit
 done
