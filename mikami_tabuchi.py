@@ -226,7 +226,7 @@ def build_path(a: Line, b: Line) -> Path:
 
 
 def add_lines(grid: np.ndarray, p0: Point, cell_type: int, dim: int, parent: Union[Point, Line], enable_recursion=True) -> (List[Line], bool):
-    assert dim in (1, 2), 'dim should be either 1 or 2'
+    assert dim in (1, 2), f'dim should be either 1 or 2, not {dim}'
     assert not is_cell(grid[p0], OBSTACLE), 'started line with obstacle point'
 
     lines = []
@@ -261,7 +261,8 @@ def add_lines(grid: np.ndarray, p0: Point, cell_type: int, dim: int, parent: Uni
                 else:
                     lines += new_lines
 
-            max_x = p1[dim]
+            max_x = max(p1[dim], max_x)
+            min_x = min(p1[dim], min_x)
             grid[p1] = put_cell(grid[p1], cell_type)
 
             if is_src_on_dest(grid[p1]):
@@ -294,10 +295,37 @@ def solve_one_target(grid: np.ndarray, src_coor: Point, dest_coor: Point, src_le
     # levels[0] = src_levels, levels[1] = dest_levels
     levels = [src_levels, [[]]]
 
+    def try_build_path(grid: np.ndarray, i: int, p: Point, cell_type: int, dim: int, parent: Union[Point, Line]) -> Optional[Path]:
+        print('before\n', grid)
+        perp_l0, crossed = add_lines(
+            grid, p, cell_type, dim, parent
+        )
+        print('after\n', grid)
+        levels[i][-1] += perp_l0
+
+        if crossed:
+            # search for its line l3 in the other level
+            l3 = search_in_levels(perp_l0[0], levels[1-i])
+            assert l3 is not None, \
+                f'line={perp_l0[0]} in {"DEST" if i==1 else "SRC"} '\
+                f'doesnt intersect with any line in levels={levels[1-i]},'\
+                f' this levels={levels[i]}'
+
+            # bactrack perp_l0 to S and l3 to T (or vice versa) and create path of backtracking points
+            a, b = (perp_l0[0], l3) if i == 0 else (l3, perp_l0[0])
+            path = build_path(a, b)
+
+            # clean grid of dest
+            grid = dest_to_src(grid)
+            print(path)
+            return remove_duplicates(path)
+
     # start with vert+hor lines for target
     # each line has T as parent backtracking point
-    levels[1][0] += add_lines(grid, dest_coor, DEST, 1, dest_coor)[0]
-    levels[1][0] += add_lines(grid, dest_coor, DEST, 2, dest_coor)[0]
+    for dim in (1, 2):
+        path = try_build_path(grid, 1, dest_coor, DEST, dim, dest_coor)
+        if path:
+            return path
 
     # while no new craeted lines for both S and T:
     while len(levels[0][-1]) != 0 and len(levels[0][-1]) != 0:
@@ -309,26 +337,11 @@ def solve_one_target(grid: np.ndarray, src_coor: Point, dest_coor: Point, src_le
             for l0 in levels[i][-2]:
                 # for each point on line:
                 for p in l0.points():
-                    # create perp_l0, where its parent is l0
-                    perp_l0, crossed = add_lines(
-                        grid, p, cell_type, l0.perpend_dim(), l0
+                    path = try_build_path(
+                        grid, i, p, cell_type, l0.perpend_dim(), l0
                     )
-                    print(grid)
-                    levels[i][-1] += perp_l0
-
-                    if crossed:
-                        # search for its line l3 in the other level
-                        l3 = search_in_levels(perp_l0[0], levels[1-i])
-                        assert l3 is not None, f'line={perp_l0[0]} doesnt intersect with any line in levels={levels[1-i]}, i={i}'
-
-                        # bactrack perp_l0 to S and l3 to T (or vice versa) and create path of backtracking points
-                        a, b = (perp_l0[0], l3) if i == 0 else (l3, perp_l0[0])
-                        path = build_path(a, b)
-
-                        # clean grid of dest
-                        grid = dest_to_src(grid)
-                        print(path)
-                        return remove_duplicates(path)
+                    if path:
+                        return path
 
     # clean grid of dest
     grid = dest_to_src(grid)
@@ -353,9 +366,6 @@ if __name__ == "__main__":
     grid = np.array(inp['grid'], dtype='uint8')
     src_coor = Point._make(inp['src_coor'])
     dest_coor = [Point._make(x) for x in inp['dest_coor']]
-
-    # for tests TODO
-    grid[:] = 0
 
     # solve
     paths = solve(grid, src_coor, dest_coor)
