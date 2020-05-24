@@ -301,7 +301,7 @@ def solve_one_target(grid: np.ndarray, src_coor: Point, dest_coor: Point, src_le
             grid, p, cell_type, dim, parent
         )
         # print('after\n', grid)
-        if not can_be_empty:
+        if len(perp_l0) == 0 and not can_be_empty:
             return []
         levels[i][-1] += perp_l0
 
