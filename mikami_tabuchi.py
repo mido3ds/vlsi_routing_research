@@ -7,8 +7,8 @@ from typing import Generator, List, NamedTuple, Union, Optional
 
 import numpy as np
 
-_print = print
-print = lambda *args, **kwargs: _print(*args, **kwargs, file=sys.stderr)
+# _print = print
+# print = lambda *args, **kwargs: _print(*args, **kwargs, file=sys.stderr)
 
 # cell type
 OBSTACLE = 0
@@ -208,7 +208,6 @@ Path = List[Point]
 
 def intersect_lines(lines: List[Line]) -> Path:
     path: Path = []
-    # print('intersect_lines', lines)
     for i in range(len(lines)-1):
         path.append(lines[i].intersection(lines[i+1]))
     return path
@@ -297,11 +296,11 @@ def solve_one_target(grid: np.ndarray, src_coor: Point, dest_coor: Point, src_le
     levels = [src_levels, [[]]]
 
     def try_build_path(grid: np.ndarray, i: int, p: Point, cell_type: int, dim: int, parent: Union[Point, Line], can_be_empty: bool = True) -> Optional[Path]:
-        print('before\n', grid)
+        # print('before\n', grid)
         perp_l0, crossed = add_lines(
             grid, p, cell_type, dim, parent
         )
-        print('after\n', grid)
+        # print('after\n', grid)
         if not can_be_empty:
             return []
         levels[i][-1] += perp_l0
@@ -320,7 +319,7 @@ def solve_one_target(grid: np.ndarray, src_coor: Point, dest_coor: Point, src_le
 
             # clean grid of dest
             grid = dest_to_src(grid)
-            print(path)
+            # print(path)
             return complete_points(path)
 
     # start with vert+hor lines for target
