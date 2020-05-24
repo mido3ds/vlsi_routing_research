@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 import sys
-from typing import Generator, List, NamedTuple, Union, Optional
+from typing import Generator, List, NamedTuple, Union, Optional, Dict
 
 import numpy as np
 
@@ -281,13 +281,14 @@ def search_in_levels(l: Line, levels: List[List[Line]]) -> Optional[Line]:
                 return l2
 
 
-def remove_duplicates(l: List[object]) -> List[object]:
-    if len(l) == 0:
+def complete_points(l: List[Point]) -> List[Point]:
+    if len(l) <= 1:
         return l
-    l2 = [l[0]]
-    for el in l[1:]:
-        if l2[-1] != el:
-            l2.append(el)
+    l2: List[Point] = [l[0]]
+    for i in range(len(l)-1):
+        for p in Line(l[i], l[i+1], None).points():
+            if l2[-1] != p:
+                l2.append(p)
     return l2
 
 
@@ -318,7 +319,7 @@ def solve_one_target(grid: np.ndarray, src_coor: Point, dest_coor: Point, src_le
             # clean grid of dest
             grid = dest_to_src(grid)
             print(path)
-            return remove_duplicates(path)
+            return complete_points(path)
 
     # start with vert+hor lines for target
     # each line has T as parent backtracking point
