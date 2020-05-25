@@ -78,9 +78,19 @@ def assignTarget(myG, dim):
     myG[dim[0]][dim[1]][dim[2]].specifyTrg()
     return
 
+def initDimensions(grid):
+    return len(inp['grid']) , len(inp['grid'][0]) , len(inp['grid'][0][0])
+    
 
-
-
+def initGrid (inp):
+    #constructing the Grid of objects
+    myG = constructGraph(inp['grid'])
+    #assign the source
+    assignSource(myG , inp['src_coor'])
+    #assign the targets (terminals)
+    for target in (inp['dest_coor']):
+        assignTarget(myG, target)
+    return myG
 
 
 
@@ -94,15 +104,9 @@ if __name__ == "__main__":
     # inp = json.load(sys.stdin)
     inp = json.loads('{"grid": [[[0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0], [0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1], [0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0], [0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0], [0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0], [1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1], [0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0], [0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1], [1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0], [1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0], [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0], [1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1], [0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1], [0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0]]],\
         "src_coor": [0, 12, 11], "dest_coor": [[0, 7, 4], [0, 14, 12], [0, 6, 8], [0, 0, 1]]}')
-    D = len(inp['grid'])
-    W = len(inp['grid'][0])
-    H = len(inp['grid'][0][0])
-
-    #constructing the Grid of objects
-    myG = constructGraph(inp['grid'])
-    #assign the source
-    assignSource(myG , inp['src_coor'])
-    #assign the targets (terminals)
-    for target in (inp['dest_coor']):
-        assignTarget(myG, target)
+    
+    #init the dimensions
+    D,W,H = initDimensions(inp['grid'])
+    #init the grid
+    myG = initGrid (inp)
     
