@@ -6,6 +6,14 @@ import numpy as np
 #Needed functions:
     #print graph..for illustration
     
+#Colors
+# Black = '\u001b[30m'
+Red = '\u001b[31m'
+Green = "\u001b[32m"
+Yellow = '\u001b[33m'
+Blue = '\u001b[34m'
+Reset = "\u001b[0m" 
+
 class Cells():
     src: bool
     trg: bool
@@ -14,36 +22,54 @@ class Cells():
     via : bool
     stiener_point: bool
     cost: int
+    value: int
 
     def  __init__(self,id):
-        '''
-        This id variable is added to read the value sent by arrange function in constructing the grid of objects
+        if id == 0:
+            #Empty
+            self.src = False
+            self.trg = False
+            self.block = False
+            self.empty = True
+            self.via = False
+            self.stiener_point = False
+            #Since we are dealing with consistent costs
+            self.cost = 1
+            self.value = id
+        elif id == 1:
+            #Block
+            self.src = False
+            self.trg = False
+            self.block = True
+            self.empty = False
+            self.via = False
+            self.stiener_point = False
+            #Since we are dealing with consistent costs
+            self.cost = 0
+            self.value = id
+        elif id == 2:
+            #Via
+            self.src = False
+            self.trg = False
+            self.block = False
+            self.empty = True
+            self.via = False
+            self.stiener_point = False
+            #Since we are dealing with consistent costs
+            self.cost = 1
+            self.value = id
+        
 
-        '''
-        self.src = False
-        self.trg = False
-        self.block = False
-        self.empty = True
-        self.via = False
-        self.stiener_point = False
-        #Since we are dealing with consistent costs
-        self.cost = 0
-    
     def specifySrc (self):
         self.src = True
         self.empty = False
-    
+        self.value = 3
+
     def specifyTrg (self):
         self.trg = True
         self.empty = False
-
-    def specifyBlock (self):
-        self.block = True
-        self.empty = False
+        self.value = 4
     
-    def specifyVia (self):
-        self.via = True
-        self.empty = False
 
 
 
@@ -65,7 +91,8 @@ def constructGraph (grid):
 
     #Constructing Grid of Objects:
     vCells = np.vectorize(Cells)
-    init_arry = np.arange(D*H*W).reshape((D,W,H))
+    # init_arry = np.arange(D*H*W).reshape((D,W,H))
+    init_arry = grid
     graph = np.empty((D,W,H), dtype=object)
     graph[:,:,:] = vCells(init_arry)
 
@@ -106,8 +133,23 @@ def printGrid (graph):
         print (f'Data of Layer {layer}\n')
         for j in range(W):
             for i in range(H):
-                print (graph[layer][j][i].cost , end = '\t')
+                if graph[layer][j][i].value == 0:
+                    #Empty..white
+                    print (Reset + str(graph[layer][j][i].value), end="\t")
+                elif graph[layer][j][i].value == 1:
+                    #block..red
+                    print (Red + str(graph[layer][j][i].value), end="\t")
+                elif graph[layer][j][i].value == 2:
+                    #Via..yellow
+                    print (Yellow + str(graph[layer][j][i].value), end="\t")
+                elif graph[layer][j][i].value == 3:
+                    #Source..blue
+                    print (Blue + str(graph[layer][j][i].value), end="\t")
+                elif graph[layer][j][i].value == 4:
+                    #Target..
+                    print (Green + str(graph[layer][j][i].value), end="\t")
             print ("\n")
+        print (Reset)
 
 
 
@@ -126,4 +168,8 @@ if __name__ == "__main__":
     #init the grid
     myG = initGrid (inp)
     #print the grid
-    # printGrid(myG)
+    printGrid(myG)
+
+    #Main algorithm:
+    
+    #From each 
