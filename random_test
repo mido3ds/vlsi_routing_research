@@ -17,11 +17,11 @@ while true; do
     OUT="./tmp/$PY/out/$F.json"
     ERR="./tmp/$PY/err/$F.txt"
 
-    echo "$IN" '->' "$OUT", "$ERR"
+    echo "$IN" '->' "$OUT" , "$ERR"
     ./gen-input.py $@ >"$IN" 
     echo gen done
 
-    ./mikami_tabuchi.py <"$IN" >"$OUT" 2>"$ERR" 
+    python3 $PY <"$IN" >"$OUT" 2>"$ERR" 
 
     echo $PY done
     ./verify.py "$IN" "$OUT" 
