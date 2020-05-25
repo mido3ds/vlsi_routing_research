@@ -87,7 +87,7 @@ class Line(NamedTuple):
         for x in range(a, b, step):
             yield self.a._replace_i(dim, x)
 
-    def intersection(self, l2: Line) -> Point:
+    def intersection(self, l2: Line, grid: np.ndarray) -> Point:
         assert self.intersects(l2), f'lines {self},{l2} are not intersecting'
 
         # me is a point
@@ -98,13 +98,28 @@ class Line(NamedTuple):
         if l2.a == l2.b and l2.a in self:
             return l2.a
 
+        # different layers
+        if abs(self.a.d - l2.a.d) == 1:
+            for p in self.points():
+                if is_cell(grid[p], VIA):
+                    return p
+
+            raise AssertionError(f'no VIA in {self} connecting it with {l2}')
+
         # https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#given_two_points_on_each_line
         x1, x2, x3, x4 = self.a.h, self.b.h, l2.a.h, l2.b.h
         y1, y2, y3, y4 = self.a.w, self.b.w, l2.a.w, l2.b.w
 
         deno = (x1-x2) * (y3-y4) - (y1-y2) * (x3-x4)
 
-        assert deno != 0, f'lines {self},{l2} are parallel'
+        # parallel
+        if deno == 0:
+            for p in self.points():
+                if p in l2:
+                    return p
+
+            raise AssertionError(
+                f"lines {self} and {l2} are parallel and doesnt intersect")
 
         t = (x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)
         t /= deno
@@ -119,6 +134,12 @@ class Line(NamedTuple):
         raise AssertionError(f'lines {self},{l2} are not intersecting')
 
     def intersects(self, l2: Line) -> bool:
+        # different layers
+        if abs(self.a.d - l2.a.d) == 1:
+            return (
+                self == l2.p or l2 == self.p
+            ) and self.intersects(l2._replace(a=l2.a._replace(d=self.a.d)))
+
         if self == l2:
             return True
 
@@ -209,7 +230,7 @@ Path = List[Point]
 def intersect_lines(lines: List[Line]) -> Path:
     path: Path = []
     for i in range(len(lines)-1):
-        path.append(lines[i].intersection(lines[i+1]))
+        path.append(lines[i].intersection(lines[i+1], grid))
     return path
 
 
@@ -248,6 +269,13 @@ def add_lines(grid: np.ndarray, p0: Point, cell_type: int, dim: int, parent: Uni
             if is_cell(grid[p1], OBSTACLE):
                 break
 
+            max_x = max(p1[dim], max_x)
+            min_x = min(p1[dim], min_x)
+            grid[p1] = put_cell(grid[p1], cell_type)
+
+            if is_src_on_dest(grid[p1]):
+                return [new_line()], True
+
             if enable_recursion and is_cell(grid[p1], VIA):
                 new_lines, crossed = add_lines(
                     grid,
@@ -255,17 +283,10 @@ def add_lines(grid: np.ndarray, p0: Point, cell_type: int, dim: int, parent: Uni
                     cell_type, dim, new_line(), enable_recursion=False, can_return_point=can_return_point
                 )
 
+                lines += new_lines
+
                 if crossed:
-                    return new_lines, True
-                else:
-                    lines += new_lines
-
-            max_x = max(p1[dim], max_x)
-            min_x = min(p1[dim], min_x)
-            grid[p1] = put_cell(grid[p1], cell_type)
-
-            if is_src_on_dest(grid[p1]):
-                return [new_line()], True
+                    return lines + [new_line()], True
 
     if min_x == max_x and not can_return_point:
         return lines, False
