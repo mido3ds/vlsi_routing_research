@@ -278,7 +278,7 @@ def add_lines(grid: np.ndarray, p0: Point, cell_type: int, dim: int, parent: Uni
             grid[p1] = put_cell(grid[p1], cell_type)
 
             if is_src_on_dest(grid[p1]):
-                return [new_line()], True
+                return [new_line()] + lines, True
 
             if enable_recursion and is_cell(grid[p1], VIA):
                 new_lines, crossed = add_lines(
