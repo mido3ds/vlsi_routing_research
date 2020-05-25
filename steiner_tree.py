@@ -15,40 +15,35 @@ class Cells():
     stiener_point: bool
     cost: int
 
-    def  __init__(self,type):
-        if type == "empty":
-            self.src = False
-            self.trg = False
-            self.block = False
-            self.empty = True
-            self.via = False
-            self.stiener_point = False
-        elif type == "trg":
-            self.src = False
-            self.trg = True
-            self.block = False
-            self.empty = False
-            self.via = False
-            self.stiener_point = False
-        elif type == "block":
-            self.src = False
-            self.trg = False
-            self.block = True
-            self.empty = False
-            self.via = False
-            self.stiener_point = False
-        elif type == "via":
-            self.src = False
-            self.trg = False
-            self.block = False
-            self.empty = False
-            self.via = True
-            self.stiener_point = False
+    def  __init__(self,id):
+        '''
+        This id variable is added to read the value sent by arrange function in constructing the grid of objects
 
+        '''
+        self.src = False
+        self.trg = False
+        self.block = False
+        self.empty = True
+        self.via = False
+        self.stiener_point = False
         #Since we are dealing with consistent costs
         self.cost = 1
-        print("I init")
+    
+    def specifySrc (self):
+        self.src = True
+        self.empty = False
+    
+    def specifyTrg (self):
+        self.trg = True
+        self.empty = False
 
+    def specifyBlock (self):
+        self.block = True
+        self.empty = False
+    
+    def specifyVia (self):
+        self.via = True
+        self.empty = False
 
 
 def constructGraph (grid):
@@ -75,10 +70,13 @@ def constructGraph (grid):
 
 
 
+def assignSource(myG, dim):
+    myG[dim[0]][dim[1]][dim[2]].specifySrc()
+    return
 
-
-
-
+def assignTarget(myG, dim):
+    myG[dim[0]][dim[1]][dim[2]].specifyTrg()
+    return
 
 
 
@@ -94,11 +92,17 @@ if __name__ == "__main__":
     H = 0
 
     # inp = json.load(sys.stdin)
-    inp = json.loads('{"grid": [[[0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0], [0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1], [0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0], [0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0], [0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0], [1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1], [0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0], [0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1], [1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0], [1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0], [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0], [1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1], [0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1], [0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0]]], "src_coor": [0, 12, 11], "dest_coor": [[0, 7, 4], [0, 14, 12], [0, 6, 8], [0, 0, 1]]}')
+    inp = json.loads('{"grid": [[[0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0], [0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1], [0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0], [0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0], [0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0], [1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1], [0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0], [0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1], [1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0], [1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0], [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0], [1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1], [0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1], [0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0]]],\
+        "src_coor": [0, 12, 11], "dest_coor": [[0, 7, 4], [0, 14, 12], [0, 6, 8], [0, 0, 1]]}')
     D = len(inp['grid'])
     W = len(inp['grid'][0])
     H = len(inp['grid'][0][0])
 
-    constructGraph(inp['grid'])
-
+    #constructing the Grid of objects
+    myG = constructGraph(inp['grid'])
+    #assign the source
+    assignSource(myG , inp['src_coor'])
+    #assign the targets (terminals)
+    for target in (inp['dest_coor']):
+        assignTarget(myG, target)
     
