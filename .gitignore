@@ -276,4 +276,12 @@ TSWLatexianTemp*
 # Makeindex log files
 *.lpz
 
+
+#ref files
+ref
+
+#ev files
+ev_*
 tmp
+
+.vscode
