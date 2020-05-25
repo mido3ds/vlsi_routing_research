@@ -249,7 +249,7 @@ def build_path(a: Line, b: Line) -> Path:
     return [src] + intersect_lines(src_to_a + b_to_dst) + [dst]
 
 
-def add_lines(grid: np.ndarray, p0: Point, cell_type: int, dim: int, parent: Union[Point, Line], enable_recursion=True, can_return_point=False) -> (List[Line], bool):
+def add_lines(grid: np.ndarray, p0: Point, cell_type: int, dim: int, parent: Union[Point, Line], enable_recursion=True, can_return_point=False) -> (List[Line], bool, bool):
     assert dim in (1, 2), f'dim should be either 1 or 2, not {dim}'
     assert not is_cell(grid[p0], OBSTACLE), 'started line with obstacle point'
 
@@ -268,6 +268,7 @@ def add_lines(grid: np.ndarray, p0: Point, cell_type: int, dim: int, parent: Uni
         Line(p0, p0._replace_i(dim, grid.shape[dim]), None).points(False)
     ]
 
+    new = False
     for points in points_set:
         for p1 in points:
             if is_cell(grid[p1], OBSTACLE):
@@ -275,27 +276,32 @@ def add_lines(grid: np.ndarray, p0: Point, cell_type: int, dim: int, parent: Uni
 
             max_x = max(p1[dim], max_x)
             min_x = min(p1[dim], min_x)
+
+            if not is_cell(grid[p1], cell_type):
+                new = True
             grid[p1] = put_cell(grid[p1], cell_type)
 
             if is_src_on_dest(grid[p1]):
-                return [new_line()] + lines, True
+                return [new_line()] + lines, True, new
 
             if enable_recursion and is_cell(grid[p1], VIA):
-                new_lines, crossed = add_lines(
+                new_lines, crossed, _new = add_lines(
                     grid,
                     p1._replace(d=1-p1.d),
                     cell_type, dim, new_line(), enable_recursion=False, can_return_point=can_return_point
                 )
 
+                new = _new or new
+
                 lines += new_lines
 
                 if crossed:
-                    return lines + [new_line()], True
+                    return lines + [new_line()], True, new
 
     if min_x == max_x and not can_return_point:
-        return lines, False
+        return lines, False, new
 
-    return lines + [new_line()], False
+    return lines + [new_line()], False, new
 
 
 def search_in_levels(l: Line, levels: List[List[Line]]) -> Optional[Line]:
@@ -322,10 +328,12 @@ def solve_one_target(grid: np.ndarray, src_coor: Point, dest_coor: Point, src_le
 
     def try_build_path(grid: np.ndarray, i: int, p: Point, cell_type: int, dim: int, parent: Union[Point, Line], can_be_empty: bool = True) -> Optional[Path]:
         print('before\n', grid)
-        perp_l0, crossed = add_lines(
+        perp_l0, crossed, new = add_lines(
             grid, p, cell_type, dim, parent
         )
         print('after\n', grid)
+        if not new:
+            return None
         if len(perp_l0) == 0 and not can_be_empty:
             return []
         levels[i][-1] += perp_l0
@@ -391,7 +399,9 @@ def solve(grid: np.ndarray, src_coor: Point, dest_coor: List[Point]) -> List[Pat
 
 if __name__ == "__main__":
     # read
-    inp = json.load(sys.stdin)
+    # inp = json.load(sys.stdin)
+    inp = json.loads(
+        '{"grid": [[[0, 0, 2, 0], [0, 0, 2, 0], [0, 0, 0, 0], [0, 0, 1, 0]], [[1, 1, 2, 0], [1, 0, 2, 1], [0, 1, 1, 0], [1, 0, 0, 0]]], "src_coor": [0, 2, 0], "dest_coor": [[1, 3, 3], [0, 1, 0]]}')
 
     grid = np.array(inp['grid'], dtype='uint8')
     src_coor = Point._make(inp['src_coor'])
