@@ -323,37 +323,46 @@ def complete_points(l: List[Point]) -> List[Point]:
 
 
 def solve_one_target(grid: np.ndarray, src_coor: Point, dest_coor: Point, src_levels: List[List[Line]]) -> Path:
+    # clean grid of dest
+    grid = dest_to_src(grid)
+
     # levels[0] = src_levels, levels[1] = dest_levels
     levels = [src_levels, [[]]]
 
     def try_build_path(grid: np.ndarray, i: int, p: Point, cell_type: int, dim: int, parent: Union[Point, Line], can_be_empty: bool = True) -> Optional[Path]:
-        print('before\n', grid)
+        # print('before\n', grid)
         perp_l0, crossed, new = add_lines(
             grid, p, cell_type, dim, parent
         )
-        print('after\n', grid)
+        # print('after\n', grid)
+
         if not new:
             return None
+
         if len(perp_l0) == 0 and not can_be_empty:
             return []
+
         levels[i][-1] += perp_l0
 
         if crossed:
-            # search for its line l3 in the other level
-            l3 = search_in_levels(perp_l0[0], levels[1-i])
-            assert l3 is not None, \
-                f'line={perp_l0[0]} in {"DEST" if i==1 else "SRC"} '\
-                f'doesnt intersect with any line in levels={levels[1-i]},'\
-                f' this levels={levels[i]}'
+            for perp in perp_l0:
+                # search for its line l3 in the other level
+                l3 = search_in_levels(perp, levels[1-i])
 
-            # bactrack perp_l0 to S and l3 to T (or vice versa) and create path of backtracking points
-            a, b = (perp_l0[0], l3) if i == 0 else (l3, perp_l0[0])
-            path = build_path(a, b)
+                if l3 is not None:
+                    # bactrack perp_l0 to S and l3 to T (or vice versa) and create path of backtracking points
+                    a, b = (perp, l3) if i == 0 else (l3, perp)
+                    path = build_path(a, b)
+                    # print(path)
 
-            # clean grid of dest
-            grid = dest_to_src(grid)
-            print(path)
-            return complete_points(path)
+                    return complete_points(path)
+
+            print(f'lines={perp_l0} in {"DEST" if i==1 else "SRC"} '
+                  f'doesnt intersect with any line in levels={levels[1-i]},'
+                  f' this levels={levels[i]}'
+                  f' ignoring this line')
+
+            return []
 
     # start with vert+hor lines for target
     # each line has T as parent backtracking point
@@ -379,8 +388,6 @@ def solve_one_target(grid: np.ndarray, src_coor: Point, dest_coor: Point, src_le
                     if path:
                         return path
 
-    # clean grid of dest
-    grid = dest_to_src(grid)
     return []
 
 
