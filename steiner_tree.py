@@ -106,12 +106,12 @@ class Cells():
                 return [self.D , self.H+1, self.W]
 
         elif relative == "up":
-            if self.D+1 >= layers:
+            if self.D+1 >= layers or self.via == False:
                 return emptyList
             else:
                 return [self.D+1, self.H, self.W]
         elif relative == "down":
-            if self.D-1 <= -1:
+            if self.D-1 <= -1 or self.via == False:
                 return emptyList
             else:
                 return [self.D-1 , self.H, self.W]
@@ -180,23 +180,23 @@ def printGrid (graph):
                 # print (str(graph[layer][j][i].value), end="\t")
                 #Start..
                 if graph[layer][j][i].visited :
-                    print (Yellow + str(graph[layer][j][i].value), end="\t")
+                    print (Yellow + str(graph[layer][j][i].value), end="   ")
                 else:
                     if graph[layer][j][i].value == 0:
                         #Empty..white
-                        print (Reset + str(graph[layer][j][i].value), end="\t")
+                        print (Reset + str(graph[layer][j][i].value), end="   ")
                     elif graph[layer][j][i].value == 1:
-                        #block..red
-                        print (Red + str(graph[layer][j][i].value), end="\t")
+                        #block..red  
+                        print (Red + str(graph[layer][j][i].value), end="   ")
                     elif graph[layer][j][i].value == 2:
                         #Via..yellow
-                        print (Yellow + str(graph[layer][j][i].value), end="\t")
+                        print (Yellow + str(graph[layer][j][i].value), end="   ")
                     elif graph[layer][j][i].value == 3:
                         #Source..blue
-                        print (Blue + str(graph[layer][j][i].value), end="\t")
+                        print (Blue + str(graph[layer][j][i].value), end="   ")
                     elif graph[layer][j][i].value == 4:
                         #Target..
-                        print (Green + str(graph[layer][j][i].value), end="\t")
+                        print (Green + str(graph[layer][j][i].value), end="   ")
                 #End of commenting
                 
                 #To check dimensions
@@ -242,7 +242,7 @@ def findMinPath (myG_Copy, a, b):
             if len(relative) > 0:
                 obj = myG_Copy[relative[0],relative[1],relative[2]]
                 if obj.block == False and obj.visited == False: 
-                    print (f'Im cell {x.dim} and my available relative is {obj.dim} on the {direction}')
+                    # print (f'Im cell {x.dim} and my available relative is {obj.dim} on the {direction}')
                     obj.visitedNow()
                     obj.myParent(x)
                     if obj.dim == b:
@@ -250,8 +250,6 @@ def findMinPath (myG_Copy, a, b):
                         break
                     else:
                         Q.put(obj)
-
-    printGrid(myG_Copy)
     while obj.parent != None and targetFound:
         path.append(obj.parent.dim)
         temp = obj.parent
@@ -272,9 +270,9 @@ if __name__ == "__main__":
     W = 0
     H = 0
 
-    # inp = json.load(sys.stdin)
-    inp = json.loads('{"grid": [[[0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0], [0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1], [0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0], [0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0], [0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0], [1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1], [0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0], [0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1], [1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0], [1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0], [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0], [1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1], [0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1], [0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0]]],\
-         "src_coor": [0, 12, 11], "dest_coor": [[0, 7, 4], [0, 14, 12], [0, 6, 8], [0, 0, 1]]}')
+    inp = json.load(sys.stdin)
+    # inp = json.loads('{"grid": [[[0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0], [0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1], [0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0], [0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0], [0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0], [1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1], [0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0], [0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1], [1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0], [1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0], [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0], [1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1], [0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1], [0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0]]],\
+    #      "src_coor": [0, 12, 11], "dest_coor": [[0, 7, 4], [0, 14, 12], [0, 6, 8], [0, 0, 1]]}')
     
     #init the dimensions
     D,H,W = initDimensions(inp['grid'])
@@ -301,7 +299,9 @@ if __name__ == "__main__":
     while (not exitLoop):
         #print the grid
         printGrid(myG)
+        print (Blue +"List of all Targets: ")
         print (targets)
+        print(Reset)
         #Holds all the min paths for all targets
         minPaths = []
         for target in targets:
@@ -324,18 +324,22 @@ if __name__ == "__main__":
         if len(minPaths) <= 0:
             #Terminate with no route error
             exitLoop = True
-            print (Yellow + 'No Route exist to connect all targets..sorry!')
+            print (Red + 'No Route exist to connect all targets..sorry!')
         else:
             minPath = getTheMin(minPaths)
             #Mark all the sources at the graph
+            print(Yellow+f'min path selected is: ')
             print (minPath)
+            print(Reset)
             removedTarget = []
             for cell in minPath:
                 if myG[cell[0],cell[1],cell[2]].trg == True:
                     removedTarget = [cell[0],cell[1],cell[2]]
                 myG[cell[0],cell[1],cell[2]].specifySrc()
             #remove that target..it's a source now...
+            print (Yellow +f"Target {removedTarget} is connected to successfully.." +Reset)
             targets.remove(removedTarget)
+            printGrid(myG)
         if len(targets) == 0:
             exitLoop = True
             print (Green + 'Finished Successfully')
