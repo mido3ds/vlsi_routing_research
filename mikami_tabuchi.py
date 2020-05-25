@@ -399,9 +399,7 @@ def solve(grid: np.ndarray, src_coor: Point, dest_coor: List[Point]) -> List[Pat
 
 if __name__ == "__main__":
     # read
-    # inp = json.load(sys.stdin)
-    inp = json.loads(
-        '{"grid": [[[0, 0, 2, 0], [0, 0, 2, 0], [0, 0, 0, 0], [0, 0, 1, 0]], [[1, 1, 2, 0], [1, 0, 2, 1], [0, 1, 1, 0], [1, 0, 0, 0]]], "src_coor": [0, 2, 0], "dest_coor": [[1, 3, 3], [0, 1, 0]]}')
+    inp = json.load(sys.stdin)
 
     grid = np.array(inp['grid'], dtype='uint8')
     src_coor = Point._make(inp['src_coor'])
