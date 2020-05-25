@@ -4,8 +4,8 @@ Verify if given output solves given input case. Makes sure that:
 0. All points are valid in range.
 1. Lenghtes are non-negative.
 2. Lengthes match len(path_coor)
-3. The final point in each path is one of the terminals in dest_coor.
-4. The first point in each path in src_coor.
+3. The final point in each path is one of the terminals in dest_coor or a point in other path that leads to it.
+4. The first point in each path is src_coor or a point in other path that leads to it.
 5. No path goes over an obstacle.
 6. Number of elements "path_exists", "path_length" and "path_coor" must be equal to len(dest_coor)
 
@@ -23,11 +23,15 @@ from argparse import RawTextHelpFormatter
 
 # colors
 RESET = '\033[00m'
-RED = ERROR_COLOR = '\033[31m'
-GREEN = LB_COLOR = '\033[32m'
+RED = '\033[31m'
+GREEN = '\033[32m'
+Yellow = '\u001b[33m'
 
 
 def ok(msg): return print(GREEN + 'ok:' + RESET, msg)
+
+
+def warn(msg): return print(Yellow + 'warn:' + RESET, msg)
 
 
 def get_dimensions(grid) -> (int, int, int):
@@ -51,32 +55,67 @@ def check_valid_ranges(d, h, w, path_coor):
 
 
 def check_lengthes(path_length, path_coor):
+    fail = False
     for i, l in enumerate(path_length):
         assert l >= 0, 'lengthes must be positive'
-        assert len(path_coor[i]) == l,\
-            f'length({i})={l} != len(path_coor[{i}])={len(path_coor[i])}'
-    ok('all path_length are positive and match the length of path_coor')
+        if not len(path_coor[i]) == l:
+            warn(f'length({i})={l} != len(path_coor[{i}])={len(path_coor[i])}')
+            fail = True
+
+    if not fail:
+        ok('all path_length are positive and match the length of path_coor')
+    else:
+        ok('all path_length are positive')
+
+
+def exists_in_non_i(i: int, x: object, ys: [[object]]) -> bool:
+    for i2, y in enumerate(ys):
+        if x in y and i != i2:
+            return True
+    return False
 
 
 def check_start_terminals(src_coor, path_coor):
+    fail = False
     for i, path in enumerate(path_coor):
         if len(path) != 0:
-            assert path[0] == src_coor,\
-                f'path_coor[{i}] first point={path[0]} is not src_coor={src_coor}'
-    ok('all path_coor start with src_coor')
+            if not path[0] == src_coor:
+                warn(f'path_coor[{i}] first point={path[0]}'
+                     f' is not src_coor={src_coor}')
+
+                assert exists_in_non_i(i, path[0], path_coor),\
+                    f'path_coor[{i}] first point={path[0]}'\
+                    f' doest have any connection to src_coor={src_coor}'
+
+                fail = True
+
+    if not fail:
+        ok('all path_coor start with src_coor')
+    else:
+        ok('all path_coor at least start with a point that connects to src_coor')
 
 
 def check_end_terminals(dest_coor, path_coor):
+    fail = False
     examined_coords = []
     for i, path in enumerate(path_coor):
         if len(path) != 0:
-            assert path[-1] in dest_coor, \
-                f'path_coor[{i}] leads to a point that doesnt belong '\
-                f'to the final terminals, point={path[-1]}, final terminals={dest_coor}'
+            if not path[-1] in dest_coor:
+                warn(f'path_coor[{i}] leads to a point that doesnt belong '
+                     f'to the final terminals, point={path[-1]}, final terminals={dest_coor}')
+                assert exists_in_non_i(i, path[-1], path_coor),\
+                    f'path_coor[{i}] doesnt lead to a point that belong '\
+                    f'to the final terminals, point={path[-1]}, final terminals={dest_coor}'
+                fail = True
+
             assert path[-1] not in examined_coords,\
                 f'path_length[{i}] leads to a duplicate end point={path[-1]}'
             examined_coords.append(path[-1])
-    ok('all path_coor end with one dest_coor, no duplication')
+
+    if not fail:
+        ok('all path_coor end with one dest_coor, no duplication')
+    else:
+        ok('all path_coor have some connection to one dest_coor, no duplication')
 
 
 def is_adjacent(a: [int], b: [int]) -> bool:
