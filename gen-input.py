@@ -95,12 +95,25 @@ def clear_obstacle(a: [int], grid):
     return grid
 
 
+def rand_dest_coords(args):
+    coords = []
+    for _ in range(args.n):
+        while True:
+            coord = rand_coord(args.d, args.h, args.w)
+            if coord not in coords:
+                break
+
+        coords.append(coord)
+
+    return coords
+
+
 if __name__ == "__main__":
     args = parse_args()
 
     grid = np.random.randint(2, size=(args.d, args.h, args.w), dtype='uint8')
     src_coor = rand_coord(args.d, args.h, args.w)
-    dest_coor = [rand_coord(args.d, args.h, args.w) for _ in range(args.n)]
+    dest_coor = rand_dest_coords(args)
     if args.d > 1:
         grid = add_vias(grid, args.v, args.h, args.w, src_coor, dest_coor)
 

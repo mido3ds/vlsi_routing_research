@@ -87,7 +87,11 @@ class Line(NamedTuple):
         for x in range(a, b, step):
             yield self.a._replace_i(dim, x)
 
-    def intersection(self, l2: Line) -> Point:
+        if dim == 0:
+            new_a = self.a._replace(d=self.b.d)
+            yield from self._replace(a=new_a).points(inclusive)
+
+    def intersection(self, l2: Line, grid: np.ndarray) -> Point:
         assert self.intersects(l2), f'lines {self},{l2} are not intersecting'
 
         # me is a point
@@ -98,13 +102,28 @@ class Line(NamedTuple):
         if l2.a == l2.b and l2.a in self:
             return l2.a
 
+        # different layers
+        if abs(self.a.d - l2.a.d) == 1:
+            for p in self.points():
+                if is_cell(grid[p], VIA):
+                    return p
+
+            raise AssertionError(f'no VIA in {self} connecting it with {l2}')
+
         # https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#given_two_points_on_each_line
         x1, x2, x3, x4 = self.a.h, self.b.h, l2.a.h, l2.b.h
         y1, y2, y3, y4 = self.a.w, self.b.w, l2.a.w, l2.b.w
 
         deno = (x1-x2) * (y3-y4) - (y1-y2) * (x3-x4)
 
-        assert deno != 0, f'lines {self},{l2} are parallel'
+        # parallel
+        if deno == 0:
+            for p in self.points():
+                if p in l2:
+                    return p
+
+            raise AssertionError(
+                f"lines {self} and {l2} are parallel and doesnt intersect")
 
         t = (x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)
         t /= deno
@@ -119,6 +138,12 @@ class Line(NamedTuple):
         raise AssertionError(f'lines {self},{l2} are not intersecting')
 
     def intersects(self, l2: Line) -> bool:
+        # different layers
+        if abs(self.a.d - l2.a.d) == 1:
+            return (
+                self == l2.p or l2 == self.p
+            ) and self.intersects(l2._replace(a=l2.a._replace(d=self.a.d)))
+
         if self == l2:
             return True
 
@@ -208,9 +233,8 @@ Path = List[Point]
 
 def intersect_lines(lines: List[Line]) -> Path:
     path: Path = []
-    # print('intersect_lines', lines)
     for i in range(len(lines)-1):
-        path.append(lines[i].intersection(lines[i+1]))
+        path.append(lines[i].intersection(lines[i+1], grid))
     return path
 
 
@@ -225,8 +249,8 @@ def build_path(a: Line, b: Line) -> Path:
     return [src] + intersect_lines(src_to_a + b_to_dst) + [dst]
 
 
-def add_lines(grid: np.ndarray, p0: Point, cell_type: int, dim: int, parent: Union[Point, Line], enable_recursion=True) -> (List[Line], bool):
-    assert dim in (1, 2), 'dim should be either 1 or 2'
+def add_lines(grid: np.ndarray, p0: Point, cell_type: int, dim: int, parent: Union[Point, Line], enable_recursion=True, can_return_point=False) -> (List[Line], bool):
+    assert dim in (1, 2), f'dim should be either 1 or 2, not {dim}'
     assert not is_cell(grid[p0], OBSTACLE), 'started line with obstacle point'
 
     lines = []
@@ -249,25 +273,26 @@ def add_lines(grid: np.ndarray, p0: Point, cell_type: int, dim: int, parent: Uni
             if is_cell(grid[p1], OBSTACLE):
                 break
 
+            max_x = max(p1[dim], max_x)
+            min_x = min(p1[dim], min_x)
+            grid[p1] = put_cell(grid[p1], cell_type)
+
+            if is_src_on_dest(grid[p1]):
+                return [new_line()] + lines, True
+
             if enable_recursion and is_cell(grid[p1], VIA):
                 new_lines, crossed = add_lines(
                     grid,
                     p1._replace(d=1-p1.d),
-                    cell_type, dim, new_line(), enable_recursion=False
+                    cell_type, dim, new_line(), enable_recursion=False, can_return_point=can_return_point
                 )
 
+                lines += new_lines
+
                 if crossed:
-                    return new_lines, True
-                else:
-                    lines += new_lines
+                    return lines + [new_line()], True
 
-            max_x = p1[dim]
-            grid[p1] = put_cell(grid[p1], cell_type)
-
-            if is_src_on_dest(grid[p1]):
-                return [new_line()], True
-
-    if min_x == max_x:
+    if min_x == max_x and not can_return_point:
         return lines, False
 
     return lines + [new_line()], False
@@ -280,13 +305,14 @@ def search_in_levels(l: Line, levels: List[List[Line]]) -> Optional[Line]:
                 return l2
 
 
-def remove_duplicates(l: List[object]) -> List[object]:
-    if len(l) == 0:
+def complete_points(l: List[Point]) -> List[Point]:
+    if len(l) <= 1:
         return l
-    l2 = [l[0]]
-    for el in l[1:]:
-        if l2[-1] != el:
-            l2.append(el)
+    l2: List[Point] = [l[0]]
+    for i in range(len(l)-1):
+        for p in Line(l[i], l[i+1], None).points():
+            if l2[-1] != p:
+                l2.append(p)
     return l2
 
 
@@ -294,10 +320,40 @@ def solve_one_target(grid: np.ndarray, src_coor: Point, dest_coor: Point, src_le
     # levels[0] = src_levels, levels[1] = dest_levels
     levels = [src_levels, [[]]]
 
+    def try_build_path(grid: np.ndarray, i: int, p: Point, cell_type: int, dim: int, parent: Union[Point, Line], can_be_empty: bool = True) -> Optional[Path]:
+        print('before\n', grid)
+        perp_l0, crossed = add_lines(
+            grid, p, cell_type, dim, parent
+        )
+        print('after\n', grid)
+        if len(perp_l0) == 0 and not can_be_empty:
+            return []
+        levels[i][-1] += perp_l0
+
+        if crossed:
+            # search for its line l3 in the other level
+            l3 = search_in_levels(perp_l0[0], levels[1-i])
+            assert l3 is not None, \
+                f'line={perp_l0[0]} in {"DEST" if i==1 else "SRC"} '\
+                f'doesnt intersect with any line in levels={levels[1-i]},'\
+                f' this levels={levels[i]}'
+
+            # bactrack perp_l0 to S and l3 to T (or vice versa) and create path of backtracking points
+            a, b = (perp_l0[0], l3) if i == 0 else (l3, perp_l0[0])
+            path = build_path(a, b)
+
+            # clean grid of dest
+            grid = dest_to_src(grid)
+            print(path)
+            return complete_points(path)
+
     # start with vert+hor lines for target
     # each line has T as parent backtracking point
-    levels[1][0] += add_lines(grid, dest_coor, DEST, 1, dest_coor)[0]
-    levels[1][0] += add_lines(grid, dest_coor, DEST, 2, dest_coor)[0]
+    for dim in (1, 2):
+        path = try_build_path(grid, 1, dest_coor, DEST,
+                              dim, dest_coor, can_be_empty=False)
+        if path is not None:
+            return path
 
     # while no new craeted lines for both S and T:
     while len(levels[0][-1]) != 0 and len(levels[0][-1]) != 0:
@@ -309,26 +365,11 @@ def solve_one_target(grid: np.ndarray, src_coor: Point, dest_coor: Point, src_le
             for l0 in levels[i][-2]:
                 # for each point on line:
                 for p in l0.points():
-                    # create perp_l0, where its parent is l0
-                    perp_l0, crossed = add_lines(
-                        grid, p, cell_type, l0.perpend_dim(), l0
+                    path = try_build_path(
+                        grid, i, p, cell_type, l0.perpend_dim(), l0
                     )
-                    print(grid)
-                    levels[i][-1] += perp_l0
-
-                    if crossed:
-                        # search for its line l3 in the other level
-                        l3 = search_in_levels(perp_l0[0], levels[1-i])
-                        assert l3 is not None, f'line={perp_l0[0]} doesnt intersect with any line in levels={levels[1-i]}, i={i}'
-
-                        # bactrack perp_l0 to S and l3 to T (or vice versa) and create path of backtracking points
-                        a, b = (perp_l0[0], l3) if i == 0 else (l3, perp_l0[0])
-                        path = build_path(a, b)
-
-                        # clean grid of dest
-                        grid = dest_to_src(grid)
-                        print(path)
-                        return remove_duplicates(path)
+                    if path:
+                        return path
 
     # clean grid of dest
     grid = dest_to_src(grid)
@@ -340,8 +381,10 @@ def solve(grid: np.ndarray, src_coor: Point, dest_coor: List[Point]) -> List[Pat
 
     # start with vert+hor lines for src
     # each line has S as parent backtracking point
-    src_levels[0] += add_lines(grid, src_coor, SRC, 1, src_coor)[0]
-    src_levels[0] += add_lines(grid, src_coor, SRC, 2, src_coor)[0]
+    src_levels[0] += add_lines(grid, src_coor, SRC,
+                               1, src_coor, can_return_point=True)[0]
+    src_levels[0] += add_lines(grid, src_coor, SRC,
+                               2, src_coor, can_return_point=True)[0]
 
     return [solve_one_target(grid, src_coor, dest, src_levels) for dest in dest_coor]
 
@@ -353,9 +396,6 @@ if __name__ == "__main__":
     grid = np.array(inp['grid'], dtype='uint8')
     src_coor = Point._make(inp['src_coor'])
     dest_coor = [Point._make(x) for x in inp['dest_coor']]
-
-    # for tests TODO
-    grid[:] = 0
 
     # solve
     paths = solve(grid, src_coor, dest_coor)

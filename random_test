@@ -1,0 +1,28 @@
+#!/bin/bash
+set -e
+
+if [[ ! -x "$1"  ]]; then
+    echo "Usage $0 path/to/python_file.py [arguments to gen-input.py]"
+    exit 1
+fi
+
+PY="$1"
+shift
+
+mkdir -p ./tmp/"$PY"/{in,out,err}
+
+while true; do
+    F="$(mktemp XXXXX -u)"
+    IN="./tmp/$PY/in/$F.json"
+    OUT="./tmp/$PY/out/$F.json"
+    ERR="./tmp/$PY/err/$F.txt"
+
+    echo "$IN" '->' "$OUT", "$ERR"
+    ./gen-input.py $@ >"$IN" 
+    echo gen done
+
+    ./mikami_tabuchi.py <"$IN" >"$OUT" 2>"$ERR" 
+
+    echo $PY done
+    ./verify.py "$IN" "$OUT" 
+done

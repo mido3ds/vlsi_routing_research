@@ -282,3 +282,6 @@ ref
 
 #ev files
 ev_*
+tmp
+
+.vscode
