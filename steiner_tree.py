@@ -324,7 +324,7 @@ if __name__ == "__main__":
         if len(minPaths) <= 0:
             #Terminate with no route error
             exitLoop = True
-            print (Yellow + 'No Route exist..sorry!')
+            print (Yellow + 'No Route exist to connect all targets..sorry!')
         else:
             minPath = getTheMin(minPaths)
             #Mark all the sources at the graph
@@ -339,3 +339,27 @@ if __name__ == "__main__":
         if len(targets) == 0:
             exitLoop = True
             print (Green + 'Finished Successfully')
+    
+    #Print the result
+        #find the path of sources and it's gotta be larger than 1
+    finalPath = []
+    for l in range (D):
+        for j in range (H):
+            for i in range (W):
+                if myG[l,j,i].src == True:
+                    finalPath.append([l,j,i])
+    # write
+    out = {
+        "path_exists": [],
+        "path_length": [],
+        "path_coor": []
+    }
+    if len(finalPath) > 1:
+        #A path exist
+        out['path_exists'].append(True)
+        out['path_length'].append(len(finalPath))
+        out['path_coor'].append(finalPath)
+    else:
+        out['path_exists'].append(False)
+        out['path_length'].append(0)
+
