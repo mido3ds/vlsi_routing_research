@@ -1,7 +1,6 @@
 # vlsi_routing_research
 Exploring new ways of optimizing routing algorithms in VLSI
 
-
 ## Resources
 
 Coursera Videos Illinois Univ. [here](https://www.coursera.org/learn/vlsi-cad-layout/home/week/3).

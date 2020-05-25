@@ -2,8 +2,8 @@ import json
 import sys
 import numpy as np
 
+
 #Needed functions:
-    #Construct graph
     #print graph..for illustration
     
 class Cells():
@@ -27,7 +27,7 @@ class Cells():
         self.via = False
         self.stiener_point = False
         #Since we are dealing with consistent costs
-        self.cost = 1
+        self.cost = 0
     
     def specifySrc (self):
         self.src = True
@@ -45,6 +45,10 @@ class Cells():
         self.via = True
         self.empty = False
 
+
+
+
+#Functions:
 
 def constructGraph (grid):
     '''
@@ -93,6 +97,18 @@ def initGrid (inp):
     return myG
 
 
+def printGrid (graph):
+    '''
+    Lack of coloring..TODO
+    '''
+    global D,W,H
+    for layer in range(D):
+        print (f'Data of Layer {layer}\n')
+        for j in range(W):
+            for i in range(H):
+                print (graph[layer][j][i].cost , end = '\t')
+            print ("\n")
+
 
 
 if __name__ == "__main__":
@@ -109,4 +125,5 @@ if __name__ == "__main__":
     D,W,H = initDimensions(inp['grid'])
     #init the grid
     myG = initGrid (inp)
-    
+    #print the grid
+    # printGrid(myG)
