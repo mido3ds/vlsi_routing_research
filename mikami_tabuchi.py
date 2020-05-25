@@ -87,6 +87,10 @@ class Line(NamedTuple):
         for x in range(a, b, step):
             yield self.a._replace_i(dim, x)
 
+        if dim == 0:
+            new_a = self.a._replace(d=self.b.d)
+            yield from self._replace(a=new_a).points(inclusive)
+
     def intersection(self, l2: Line, grid: np.ndarray) -> Point:
         assert self.intersects(l2), f'lines {self},{l2} are not intersecting'
 
