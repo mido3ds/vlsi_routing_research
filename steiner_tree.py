@@ -143,8 +143,6 @@ def constructGraph (grid):
     return graph
 
 
-
-
 def assignSource(myG, dim):
     myG[dim[0]][dim[1]][dim[2]].specifySrc()
     return
@@ -181,7 +179,7 @@ def printGrid (graph):
                 #and replace with this:
                 # print (str(graph[layer][j][i].value), end="\t")
                 #Start..
-                if graph[layer][j][i].visited:
+                if graph[layer][j][i].visited :
                     print (Yellow + str(graph[layer][j][i].value), end="\t")
                 else:
                     if graph[layer][j][i].value == 0:
@@ -199,7 +197,7 @@ def printGrid (graph):
                     elif graph[layer][j][i].value == 4:
                         #Target..
                         print (Green + str(graph[layer][j][i].value), end="\t")
-                    #End of commenting
+                #End of commenting
                 
                 #To check dimensions
                 # print (str(graph[layer][j][i].D) + ' '+\
@@ -249,16 +247,24 @@ def findMinPath (myG_Copy, a, b):
                     obj.myParent(x)
                     if obj.dim == b:
                         targetFound = True
+                        break
                     else:
                         Q.put(obj)
 
-
-        printGrid(myG_Copy)
-    while obj.parent != None:
-        print (obj.parent.dim)
+    printGrid(myG_Copy)
+    while obj.parent != None and targetFound:
+        path.append(obj.parent.dim)
         temp = obj.parent
         obj = temp
+        
+    return path
 
+def getTheMin(lists):
+    minList = lists[0]
+    for i in range(len(lists)):
+        if len(minList) > len(lists[i]):
+            minList = lists[i]
+    return minList
 
 if __name__ == "__main__":
     #Global Variables
@@ -274,9 +280,7 @@ if __name__ == "__main__":
     D,H,W = initDimensions(inp['grid'])
     #init the grid
     myG = initGrid (inp)
-    #print the grid
-    printGrid(myG)
-
+    
     #Main algorithm:
     #Loop until termination condition:
         #1- For each target we have:
@@ -295,21 +299,43 @@ if __name__ == "__main__":
     sources.append(inp['src_coor'])
     targets = inp['dest_coor']
     while (not exitLoop):
+        #print the grid
+        printGrid(myG)
+        print (targets)
         #Holds all the min paths for all targets
         minPaths = []
         for target in targets:
-            #Create a copy of the current graph
-            myG_Copy = copy.copy(myG)
             #Holds all the pathes of target i
             paths = []
             for source in sources:
+                #Create a copy of the main graph
+                myG_Copy = copy.deepcopy(myG)
                 path = findMinPath (myG_Copy, target, source)
+                del myG_Copy
                 #if there's a path between target i and source j
                 if len(path) > 0:
                     paths.append(path)
             #if we have paths...get me the min
             if len(paths) > 0:
-                minPaths.append(getMinPath(paths))
+                minPaths.append(getTheMin(paths))
             #if we don't have paths, we don't have a solution..
-            else:
-                print (f'this target got no destination to sources {target}')
+            else:   
+                print (f'this target has got no destination to sources: {target}')
+        if len(minPaths) <= 0:
+            #Terminate with no route error
+            exitLoop = True
+            print (Yellow + 'No Route exist..sorry!')
+        else:
+            minPath = getTheMin(minPaths)
+            #Mark all the sources at the graph
+            print (minPath)
+            removedTarget = []
+            for cell in minPath:
+                if myG[cell[0],cell[1],cell[2]].trg == True:
+                    removedTarget = [cell[0],cell[1],cell[2]]
+                myG[cell[0],cell[1],cell[2]].specifySrc()
+            #remove that target..it's a source now...
+            targets.remove(removedTarget)
+        if len(targets) == 0:
+            exitLoop = True
+            print (Green + 'Finished Successfully')
