@@ -8,7 +8,7 @@ Automatic routing techniques are always a trade-off between optimality and speed
 In this work, we seek a good balance between performance and optimality of solution by introducing the usage of A* search for automatic routing with a modified cost function.
 
 \subsection{Formulation}
-\begin{figure}[hp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.4\textwidth]{figures/grid.png}
     \caption{Example of occupancy grid map (OGM), where S is the source, D is the destination, white cells aren't occupied, black cells are occupied and blue cells represent the path.}
@@ -36,7 +36,7 @@ The second considered baseline algorithm is \emph{Mikami-Tabuchi’s} algorithm.
 \emph{Steiner tree} spans though the given subset of vertices in a given graph. Steiner tree is suitable for any situation, where the task is minimize cost of connection among some important locations, like VLSI Design, Computer Networks, etc. So, Steiner tree is considered as our final baseline algorithm.
 
 \subsection{Modified A* Search}
-\begin{figure}[hp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.4\textwidth]{figures/a_star.png}
     \caption{An illustrative example for A* search process and cost function.}
@@ -52,7 +52,7 @@ Where \emph{f(n)} is the total cost of the path from a specific node, \emph{g(n)
 
 Thus, the required information to solve an \emph{A* search} problem is the cost of edge between each two nodes and the heuristic function to get an estimated cost for each node.
 
-\begin{figure}[hp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.4\textwidth]{figures/grid_euclid.png}
     \caption{An illustrative example for the new heuristic function based on Euclidean distance.}
