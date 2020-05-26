@@ -1,20 +1,29 @@
 #!/bin/bash
-set -e
+if [[ "$1" = "" ]]; then
+    echo 'Usage: random_comp path/to/output/dir num_of_trials [ options to gen-inpu.py ]'
+    exit 1
+fi
 
-while true; do
+DIR=$1
+shift
+
+N=$1
+shift 
+
+for i in $(seq 1 $N); do 
     for PY in ./mikami_tabuchi.py ./steiner_tree.py ./maze_lee.py ./mod_a_star.py; do
-        mkdir -p ./tmp/"$PY"/{in,out,err}
+        mkdir -p ./$DIR/"$PY"/{in,out,err}
 
         F="$(mktemp XXXXX -u)"
-        IN="./tmp/$PY/in/$F.json"
-        OUT="./tmp/$PY/out/$F.json"
-        ERR="./tmp/$PY/err/$F.txt"
+        IN="./$DIR/$PY/in/$F.json"
+        OUT="./$DIR/$PY/out/$F.json"
+        ERR="./$DIR/$PY/err/$F.txt"
 
         echo "$IN" '->' "$OUT" , "$ERR"
         ./gen-input.py $@ >"$IN" 
         echo gen done
 
-        python3 $PY <"$IN" 2>"$ERR" | python3 ./calc_total.py >"$OUT"
+        /usr/bin/time -f%e timeout 1m python3 $PY <"$IN" 2>"$ERR" | python3 ./calc_total.py >"$OUT"
 
         echo $PY done
         ./verify.py "$IN" "$OUT" 
