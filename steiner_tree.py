@@ -270,9 +270,9 @@ if __name__ == "__main__":
     W = 0
     H = 0
 
-    inp = json.load(sys.stdin)
-    # inp = json.loads('{"grid": [[[0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0], [0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1], [0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0], [0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0], [0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0], [1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1], [0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0], [0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1], [1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0], [1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0], [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0], [1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1], [0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1], [0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0]]],\
-    #      "src_coor": [0, 12, 11], "dest_coor": [[0, 7, 4], [0, 14, 12], [0, 6, 8], [0, 0, 1]]}')
+    # inp = json.load(sys.stdin)
+    inp = json.loads('{"grid": [[[0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0], [0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1], [0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0], [0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0], [0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0], [1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1], [0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0], [0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1], [1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0], [1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0], [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0], [1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1], [0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1], [0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0]]],\
+         "src_coor": [0, 12, 11], "dest_coor": [[0, 7, 4], [0, 14, 12], [0, 6, 8], [0, 0, 1]]}')
     
     #init the dimensions
     D,H,W = initDimensions(inp['grid'])
@@ -295,7 +295,13 @@ if __name__ == "__main__":
     exitLoop = False
     sources = []
     sources.append(inp['src_coor'])
-    targets = inp['dest_coor']
+    targets = copy.deepcopy(inp['dest_coor'])
+    doOnce = True
+    shortestSinglePath = []
+    if  len(sources) == 0 or\
+        len(targets) == 0:\
+        print(Red+"No source or targets given...goodbye")
+
     while (not exitLoop):
         #print the grid
         printGrid(myG)
@@ -318,9 +324,20 @@ if __name__ == "__main__":
             #if we have paths...get me the min
             if len(paths) > 0:
                 minPaths.append(getTheMin(paths))
+                if doOnce:
+                    print(f'the shortest path for {target} is')
+                    print (path)
+                    tempPath = []
+                    tempPath.append(source)
+                    tempPath += path
+                    shortestSinglePath.append(tempPath)
             #if we don't have paths, we don't have a solution..
             else:   
                 print (f'this target has got no destination to sources: {target}')
+                if doOnce:
+                    emptyList = []
+                    shortestSinglePath.append(emptyList)
+        doOnce = False
         if len(minPaths) <= 0:
             #Terminate with no route error
             exitLoop = True
@@ -340,12 +357,15 @@ if __name__ == "__main__":
             print (Yellow +f"Target {removedTarget} is connected to successfully.." +Reset)
             targets.remove(removedTarget)
             printGrid(myG)
+            
         if len(targets) == 0:
             exitLoop = True
             print (Green + 'Finished Successfully')
     
     #Print the result
         #find the path of sources and it's gotta be larger than 1
+    print(Red)
+    print(shortestSinglePath)
     finalPath = []
     for l in range (D):
         for j in range (H):
@@ -356,14 +376,39 @@ if __name__ == "__main__":
     out = {
         "path_exists": [],
         "path_length": [],
-        "path_coor": []
+        "path_coor": [],
+        "final_path_exist":[],
+        "final_path_cost":[],
+        "final_path":[]
     }
-    if len(finalPath) > 1:
-        #A path exist
-        out['path_exists'].append(True)
-        out['path_length'].append(len(finalPath))
-        out['path_coor'].append(finalPath)
-    else:
-        out['path_exists'].append(False)
-        out['path_length'].append(0)
 
+    #Write down the list of paths
+    if len(targets) == len(inp['dest_coor']):
+        #no target is taken...worst casee ever
+        out["path_exists"]      = len(inp['dest_coor']) * [False]
+        out["path_length"]      = len(inp['dest_coor']) * [0]
+        out["path_coor"]        = len(inp['dest_coor']) * [[]]
+        out["final_path_exist"] = False
+        out["final_path_cost"]  = 0
+        out["final_path"]       = []     
+    else:
+        for path in shortestSinglePath:
+            if len(path) > 0:
+                out["path_exists"].append(True)      
+                out["path_length"].append(len(path))      
+                out["path_coor"].append(path)         
+            else:
+                out["path_exists"].append(False)  
+                out["path_length"].append(len(path))      
+                out["path_coor"].append(path)  
+        #add the final path..
+        out["final_path_cost"]  = len(finalPath)
+        out["final_path"]       = finalPath
+        
+        if len(targets) == 0:
+            out["final_path_exist"] = True
+        else:
+            out["final_path_exist"] = False
+    print(Reset)
+            
+        
