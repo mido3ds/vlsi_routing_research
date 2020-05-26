@@ -410,5 +410,3 @@ if __name__ == "__main__":
             out["final_path_exist"] = False
     # print(Reset)
     json.dump(out, sys.stdout)
-            
-        
