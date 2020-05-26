@@ -167,9 +167,6 @@ def initGrid (inp):
 
 
 def printGrid (graph):
-    '''
-    Lack of coloring..TODO
-    '''
     global D,W,H
     for layer in range(D):
         print (f'Data of Layer {layer}\n')
@@ -304,11 +301,11 @@ if __name__ == "__main__":
 
     while (not exitLoop):
         #print the grid
-        print (Blue +"List of all Targets: ")
-        print (targets)
-        print (Yellow +"List of all Sources: ")
-        print (sources)
-        print(Reset)
+        # print (Blue +"List of all Targets: ")
+        # print (targets)
+        # print (Yellow +"List of all Sources: ")
+        # print (sources)
+        # print(Reset)
         #Holds all the min paths for all targets
         minPaths = []
         for target in targets:
@@ -326,15 +323,15 @@ if __name__ == "__main__":
             if len(paths) > 0:
                 minPaths.append(getTheMin(paths))
                 if doOnce:
-                    print(f'the shortest path for {target} is')
-                    print (path)
+                    # print(f'the shortest path for {target} is')
+                    # print (path)
                     tempPath = []
                     tempPath.append(source)
                     tempPath += path
                     shortestSinglePath.append(tempPath)
             #if we don't have paths, we don't have a solution..
             else:   
-                print (f'this target has got no destination to sources: {target}')
+                # print (f'this target has got no destination to sources: {target}')
                 if doOnce:
                     emptyList = []
                     shortestSinglePath.append(emptyList)
@@ -342,13 +339,13 @@ if __name__ == "__main__":
         if len(minPaths) <= 0:
             #Terminate with no route error
             exitLoop = True
-            print (Red + 'No Route exist to connect all targets..sorry!')
+            # print (Red + 'No Route exist to connect all targets..sorry!')
         else:
             minPath = getTheMin(minPaths)
             #Mark all the sources at the graph
-            print(Yellow+f'min path selected is: ')
-            print (minPath)
-            print(Reset)
+            # print(Yellow+f'min path selected is: ')
+            # print (minPath)
+            # print(Reset)
             removedTarget = []
             for cell in minPath:
                 if myG[cell[0],cell[1],cell[2]].trg == True:
@@ -356,13 +353,13 @@ if __name__ == "__main__":
                 myG[cell[0],cell[1],cell[2]].specifySrc()
                 sources.append(cell)
             #remove that target..it's a source now...
-            print (Yellow +f"Target {removedTarget} is connected to successfully.." +Reset)
+            # print (Yellow +f"Target {removedTarget} is connected to successfully.." +Reset)
             targets.remove(removedTarget)
-            printGrid(myG)
+            # printGrid(myG)
             
         if len(targets) == 0:
             exitLoop = True
-            print (Green + 'Finished Successfully')
+            # print (Green + 'Finished Successfully')
     
     #Print the result
         #find the path of sources and it's gotta be larger than 1
@@ -411,6 +408,7 @@ if __name__ == "__main__":
             out["final_path_exist"] = True
         else:
             out["final_path_exist"] = False
-    print(Reset)
+    # print(Reset)
+    json.dump(out, sys.stdout)
             
         
