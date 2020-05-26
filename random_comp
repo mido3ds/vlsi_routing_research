@@ -1,0 +1,22 @@
+#!/bin/bash
+set -e
+
+while true; do
+    for PY in ./mikami_tabuchi.py ./steiner_tree.py ./maze_lee.py ./mod_a_star.py; do
+        mkdir -p ./tmp/"$PY"/{in,out,err}
+
+        F="$(mktemp XXXXX -u)"
+        IN="./tmp/$PY/in/$F.json"
+        OUT="./tmp/$PY/out/$F.json"
+        ERR="./tmp/$PY/err/$F.txt"
+
+        echo "$IN" '->' "$OUT" , "$ERR"
+        ./gen-input.py $@ >"$IN" 
+        echo gen done
+
+        python3 $PY <"$IN" 2>"$ERR" | python3 ./calc_total.py >"$OUT"
+
+        echo $PY done
+        ./verify.py "$IN" "$OUT" 
+    done
+done
