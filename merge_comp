@@ -1,0 +1,53 @@
+#!/bin/bash
+# Requirements: jq, python3.7+
+
+set -e
+
+cd tmp
+
+dirs=$(ls -1 | grep x)
+
+regex() { gawk 'match($0,/'$1'/, ary) {print ary['${2:-'0'}']}'; }
+
+for dir in $dirs; do
+    size=$(echo $dir | cut -d'x' -f1)
+    hashes=$(find $dir/ | regex '(.{5})\.txt' 1 | sort | uniq)
+    for subdir in $(ls -1 $dir); do
+        mkdir -p all/$subdir
+        for hash in $hashes; do
+            IN=$dir/$subdir/in/$hash.json
+            OUT=$dir/$subdir/out/$hash.json
+            ERR=$dir/$subdir/err/$hash.txt
+
+            if [[ ! -s $IN ]] || [[ ! -s $ERR ]]; then
+                orig_IN=$(find $dir | grep in/$hash | head -n1)
+                echo $IN does not exist but exists in $orig_IN
+
+                cp $orig_IN $IN
+                PY=../$subdir
+                ( /usr/bin/time -f%e timeout 1m python3 $PY <"$IN" 2>"$ERR" | python3 ../calc_total.py >"$OUT" && ../verify.py "$IN" "$OUT" ) &
+            fi
+
+            timeOfExec=$([[ ! -s $OUT ]] && echo Infinity || tail -n1 $ERR)
+            d=$(jq '.grid | length' $IN)
+            n=$(jq '.dest_coor | length' $IN)
+            total_cost=$(jq '.final_path_cost' $OUT)
+            total_targets=$(jq '.path_exists | indices(true) | length' $OUT)
+            
+            JSON='{
+                "algo":"'"$subdir"'",
+                "hash":"'"$hash"'",
+                "w":'"$size"',
+                "h":'"$size"',
+                "d":'"$d"',
+                "n":'"$n"',
+                "time":'"$timeOfExec"',
+                "total_cost":'"$total_cost"',
+                "total_targets":'"$total_targets"'
+            }'
+            echo $JSON >all/$subdir/$hash.json
+        done
+    done
+done
+
+find tmp/all -type f | xargs sed 's/"total_cost":, "total_targets": /"total_cost":0, "total_targets":0 /g' | jq -s . | sed 's/1.7976931348623157e+308/"Infinity"/g' >summary.json
