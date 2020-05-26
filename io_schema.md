@@ -48,7 +48,7 @@ Example:
 - `path_coor` : An array of arrays defining the coordinates of of the cells along each path.
 
 #### Variables Calculated by `calc_total.py`:
-- `final_path_exist` : Boolean of whether a final path ANY of the dests to source.
+- `final_path_exist` : Boolean of whether a final path connects ALL of the dests to source.
 - `final_path_cost` : int total length of all points in `final_path`.
 - `final_path`: list of points connecting some/all tartgets with the source, including the point of the source.
 

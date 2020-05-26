@@ -10,6 +10,7 @@ import sys
 inp = json.load(sys.stdin)
 
 assert 'path_coor' in inp, 'no path_coor'
+assert 'path_exists' in inp, 'no path_exists'
 
 if 'final_path_cost' not in inp:
     s = set()
@@ -17,7 +18,7 @@ if 'final_path_cost' not in inp:
         for p in path:
             s.add((p[0], p[1], p[2]))
 
-    inp['final_path_exist'] = len(s) != 0
+    inp['final_path_exist'] = all(inp['path_exists'])
     inp['final_path_cost'] = len(s)
     inp['final_path'] = list(s)
 
