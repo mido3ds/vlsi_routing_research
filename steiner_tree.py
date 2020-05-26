@@ -293,6 +293,7 @@ if __name__ == "__main__":
     sources = []
     sources.append(inp['src_coor'])
     targets = copy.deepcopy(inp['dest_coor'])
+    targetUnAvailable = 0
     doOnce = True
     shortestSinglePath = []
     if  len(sources) == 0 or\
@@ -333,6 +334,8 @@ if __name__ == "__main__":
             else:   
                 # print (f'this target has got no destination to sources: {target}')
                 if doOnce:
+                    targetUnAvailable +=1
+                    targets.remove(target)
                     emptyList = []
                     shortestSinglePath.append(emptyList)
         doOnce = False
@@ -382,7 +385,7 @@ if __name__ == "__main__":
     }
 
     #Write down the list of paths
-    if len(targets) == len(inp['dest_coor']):
+    if targetUnAvailable == len(inp['dest_coor']):
         #no target is taken...worst casee ever
         out["path_exists"]      = len(inp['dest_coor']) * [False]
         out["path_length"]      = len(inp['dest_coor']) * [0]
