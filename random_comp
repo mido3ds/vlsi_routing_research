@@ -23,7 +23,7 @@ for i in $(seq 1 $N); do
         ./gen-input.py $@ >"$IN" 
         echo gen done
 
-        /usr/bin/time -f%e timeout 1m python3 $PY <"$IN" 2>"$ERR" | python3 ./calc_total.py >"$OUT"
+        /usr/bin/time -f%e timeout 3m python3 $PY <"$IN" 2>"$ERR" | python3 ./calc_total.py >"$OUT"
 
         echo $PY done
         ./verify.py "$IN" "$OUT" 
