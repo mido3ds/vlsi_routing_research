@@ -17,9 +17,9 @@ In this work, we seek a good balance between performance and optimality of solut
 
 Routing is formulated as a grid search problem \ref{fig:grid}, where an occupancy grid map \emph{(OGM)} is provided with some source and destination cells to be joined. The \emph{OGM} cells can have the value of $1$ for occupied cell or $0$ for empty cell. The \emph{OGM} can be of multiple levels, in case of multi-layer routing, where the cell can have a third value to indicate that the cell can be used as a VIA. Only 4-neighbor cells are considered, so the path can move up, down, left or right. The path can also move from one level to another through VIA cells.
 
-Given that problem formulation, several grid search and shortest path algorithms can be used to find the optimal path between each source and its given destinations. These algorithms can vary based on optimality and performance.
+Given this problem formulation, several grid search and shortest path algorithms can be used to find the optimal path between each source and its given destinations. These algorithms can vary based on optimality and performance.
 
-The two main metrics considered in this work are path length and execution time. Path length between each source and destination cell is used as a measure of solution optimality. It's defined as the number of grid cells that lies on the deduced path.
+The two main metrics considered in this work are path length and execution time. Total length of metal, covering the grid, is used as a measure of solution optimality. It's defined as the number of grid cells, on which the metal is placed for routing.
 
 Execution time is used as a measure of algorithm performance. It's simply the total elapsed time by the algorithm to find all required paths.
 
@@ -27,10 +27,13 @@ Execution time is used as a measure of algorithm performance. It's simply the to
 To measure the validity and performance of our proposed method, three main baselines are used. These baselines are well-established algorithms that are currently used in industry.
 
 \subsubsection{Maze Routing (Lee's Algorithm)}
+The first baseline algorithm, to be considered, is \emph{maze routing}. Maze routing is one of the most well-established and widely-used algorithms in metal routing. It consists of a wide range of algorithms and techniques. \emph{Lee's algorithm} is the basic maze routing solution and it's considered as our first baseline for comparison. This algorithm is basically a grid search algorithm for routing.
 
 \subsubsection{Mikami-Tabuchi’s Algorithm}
+The second considered baseline algorithm is \emph{Mikami-Tabuchi’s} algorithm. Unlike \emph{Lee's algorithm}, this algorithm is a line search technique that adopts line-search operations. It can find a path between source and destination cells, but it doesn't guarantee the shortest possible path.   
 
-\subsubsection{TBD}
+\subsubsection{Steiner Tree Algorithm}
+\emph{Steiner tree} spans though the given subset of vertices in a given graph. Steiner tree is suitable for any situation, where the task is minimize cost of connection among some important locations, like VLSI Design, Computer Networks, etc. So, Steiner tree is considered as our final baseline algorithm.
 
 \subsection{Modified A* Search}
 \begin{figure}[hp]
@@ -40,7 +43,7 @@ To measure the validity and performance of our proposed method, three main basel
     \label{fig:astar}
 \end{figure}
 
-The main contribution of this paper is the usage of \emph{A* search} as a new routing technique. The main idea of \emph{A* search}, as shown in fig.\ref{fig:astar}, is the usage of some heuristic function to assign a cost for each node. To define a path from a source node to a destination node, the nodes that minimizes the estimated path cost are chosen at each step. The main objective is to minimize the following function:
+The main contribution of this work is the usage of \emph{A* search} as a new routing technique. The main idea of \emph{A* search}, as shown in fig.\ref{fig:astar}, is the usage of some heuristic function to assign a cost for each node. To define a path from a source node to a destination node, the nodes that minimizes the estimated path cost are chosen at each step. The main objective is to minimize the following function:
 
 \begin{equation} \label{eq:astar}
 f(n) = g(n) + h(n)
@@ -56,7 +59,7 @@ Thus, the required information to solve an \emph{A* search} problem is the cost 
     \label{fig:euclid}
 \end{figure}
 
-The \emph{OGM} representation of the routing problem can be formulated to become an \emph{A* search}. The edge cost \emph{g(n)} is always $1$, as the path can only move from one cell to an adjacent cell. The heuristic function, proposed in this work, is \emph{Euclidean distance} between next chosen cell and destination cell, as shown in  fig.\ref{fig:euclid}. So, the cost of taking any of the adjacent cells is \emph{Euclidean distance} $+$ $1$, which can be simplified to \emph{Euclidean distance} between an adjacent cell and destination cell.\\
+The \emph{OGM} representation of the routing problem can be formulated to become an \emph{A* search} problem. The edge cost \emph{g(n)} is always $1$, as the path can only move from one cell to an adjacent cell. The heuristic function, proposed in this work, is \emph{Euclidean distance} between next chosen cell and destination cell, as shown in  fig.\ref{fig:euclid}. So, the cost of taking any of the adjacent cells is \emph{Euclidean distance} $+$ $1$, which can be simplified to \emph{Euclidean distance} between an adjacent cell and destination cell.\\
 
 The proposed algorithm can be summarized as follows:
 

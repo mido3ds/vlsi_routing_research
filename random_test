@@ -21,7 +21,7 @@ while true; do
     ./gen-input.py $@ >"$IN" 
     echo gen done
 
-    python3 $PY <"$IN" >"$OUT" 2>"$ERR" 
+    python3 $PY <"$IN" 2>"$ERR" | python3 ./calc_total.py >"$OUT"
 
     echo $PY done
     ./verify.py "$IN" "$OUT" 
