@@ -11,6 +11,9 @@ N=$1
 shift 
 
 for i in $(seq 1 $N); do 
+    GEN=$(./gen-input.py $@)
+    echo gen done 
+
     for PY in ./mikami_tabuchi.py ./steiner_tree.py ./maze_lee.py ./mod_a_star.py; do
         mkdir -p ./$DIR/"$PY"/{in,out,err}
 
@@ -20,10 +23,9 @@ for i in $(seq 1 $N); do
         ERR="./$DIR/$PY/err/$F.txt"
 
         echo "$IN" '->' "$OUT" , "$ERR"
-        ./gen-input.py $@ >"$IN" 
-        echo gen done
+        echo $GEN >"$IN"
 
-        /usr/bin/time -f%e timeout 3m python3 $PY <"$IN" 2>"$ERR" | python3 ./calc_total.py >"$OUT"
+        /usr/bin/time -f%e timeout 5m python3 $PY <"$IN" 2>"$ERR" | python3 ./calc_total.py >"$OUT"
 
         echo $PY done
         ./verify.py "$IN" "$OUT" 
