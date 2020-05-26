@@ -261,6 +261,11 @@ def getTheMin(lists):
             minList = lists[i]
     return minList
 
+def checkBefore(target, cashedTargets):
+    if target in cashedTargets:
+        return True
+    return False
+
 if __name__ == "__main__":
     #Global Variables
     D = 0
@@ -294,6 +299,7 @@ if __name__ == "__main__":
     sources.append(inp['src_coor'])
     targets = copy.deepcopy(inp['dest_coor'])
     targetUnAvailable = 0
+    cashedTargets = []
     doOnce = True
     shortestSinglePath = []
     if  len(sources) == 0 or\
@@ -310,6 +316,8 @@ if __name__ == "__main__":
         #Holds all the min paths for all targets
         minPaths = []
         for target in targets:
+            if checkBefore(target, cashedTargets):
+                continue
             #Holds all the pathes of target i
             paths = []
             for source in sources:
@@ -335,7 +343,8 @@ if __name__ == "__main__":
                 # print (f'this target has got no destination to sources: {target}')
                 if doOnce:
                     targetUnAvailable +=1
-                    targets.remove(target)
+                    # targets.remove(target)
+                    cashedTargets.append(target)
                     emptyList = []
                     shortestSinglePath.append(emptyList)
         doOnce = False
