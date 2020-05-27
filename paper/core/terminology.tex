@@ -1,0 +1,33 @@
+\subsection{Basic Terms} %There's a space here, don't erase it.
+
+Maze: it's a $[W x H]$ matrix that contains cells, used to simulate the grid.
+
+Cells: each cell is a pin, a cell could represent a pin or an obstalce.
+
+Pin: the part where transistors gets connected to.
+
+Source: the starting point (pin) that needs to be connected to some targets.
+
+Tatgets: one or many point/s (pin/s) that needs to be connected to the source in minimum cost.
+
+Obstacle: a block that wires can't go through.
+
+Vias: like a ladder to the upper or lower layer.
+
+Wire: what connects the pins with each others.
+
+Path: the route which the wire will take in order to connect the source with all of the targets.
+
+Cost: the length of the path, the longer the wire the longer the delay.
+
+Multi-layers: instead of having only one $2D$ grid, we have multiple grids, stacked vertically.
+
+Steiner Point: intermediate points that targets can be connected to.
+
+
+\subsection{Assumptions} 
+All wires are the same size.
+
+No geometric rules (ie. spacing) violations.
+
+All pins are the center of cells.
