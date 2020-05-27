@@ -50,4 +50,4 @@ for dir in $dirs; do
     done
 done
 
-find tmp/all -type f | xargs sed 's/"total_cost":, "total_targets": /"total_cost":0, "total_targets":0 /g' | jq -s . | sed 's/1.7976931348623157e+308/"Infinity"/g' >summary.json
+find all -type f | xargs sed s/total_cost:, total_targets: /total_cost:0, total_targets:0 /g | sed s/Infinity/Infinity/g | sed s/total_cost:,/total_cost:0,/g | jq -s . >summary.json 
