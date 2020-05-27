@@ -22,6 +22,24 @@
     \nameref{MikamiSection} it's a Line-Probe algorithm, and finally the \nameref{SteinerSection} 
     it's a baseline algorithm.
 
+\subsection{Simulation environment}
+    Rapidly we'll describe our Simulation's properties:
+    \begin{itemize}
+        \item Detailed routing (not global)
+        \item System is presented as $3D$ Grid,$[D, W, H]$
+        \begin{itemize}
+            \item D: number of layers 
+            \item W: width of each grid
+            \item H: height of each grid
+        \end{itemize}
+        \item Only one source exist as a start.
+        \item Multiple targets exist (nested).          
+        \item Consistent Cost: no bending cost, no extra cost due to vias.
+        \item Vias cost is $1$.
+        \item Within the same 2D grid path could be horizontally or/and vertically
+            chosen.
+    \end{itemize}
+
 \subsection{Explored Techniques}
     Before diving into these algorithms make sure to read the \nameref{terminologySection} section first.
     \newline
