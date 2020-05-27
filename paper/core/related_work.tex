@@ -7,8 +7,8 @@
     different techniques \cite{HightowerRef}.
 \subsection{Router Anatomy}
     The Routing problem has many sections and subsections, in this paper we are mainly concerned with
-    Detailed routing. Detailed routing is divided into many subsections, as you can see in fig 
-    \ref{fig:routing_anat} and we are exploring Maze and Line Search subsections.
+    Detailed routing. Detailed routing is divided into many subsections, as you can see in fig.\ref{fig:routing_anat} 
+    and we are exploring Maze and Line Search subsections.
 
     \begin{figure}[H]
         \centering
@@ -23,9 +23,111 @@
     it's a baseline algorithm.
 
 \subsection{Explored Techniques}
+    Before diving into these algorithms make sure to read the \nameref{terminologySection} section first.
+    \newline
+
     \subsubsection{Lee algorithm}
     \label{LeeSection}
-    \subsubsection{Mikami algorithm}
+    This is one of the most common and origin routing algorithms \cite{LeeRef}.
+
+    If there's a path between source $S$ and some target $T$, the algorithm will definitely find it,
+    and in case of consistent cost (ie. no variable cost) the algorithm will not only find the 
+    a path but also the shortest one.
+
+    It uses BFS (breadth-first search) to connect targets with the source.
+
+    It works appropriately with multiple layers (ie, where vias exist).
+
+    The algorithm has main three stages:
+    \begin{itemize}
+        \item Expansion
+        \item Back-tracking
+        \item Clean up
+    \end{itemize}
+
+    The \textit{Expansion} stage fig.\ref{expansionStage} creates like a \textit{halo} shape around the source,
+    and it gets larger and the cost of each cell is incremented,
+    unless there's an obstacle (block cell),
+    until it hits a target and terminates,
+    if the expansion reached it's limit with no target hit, this means that the target/s is/are not
+    reachable.
+
+    \begin{figure}[htb]
+        \label{fig:expansionStage}
+        \centering
+
+        \begin{subfigure}[b]{0.3\linewidth}
+            \includegraphics[width=\linewidth]{figures/Lee Stages/grid.png}
+            \caption{itr 1}
+        \end{subfigure}
+        \begin{subfigure}[b]{0.3\linewidth}
+            \includegraphics[width=\linewidth]{figures/Lee Stages/grid 1.png}
+            \caption{itr 2}
+        \end{subfigure}
+        \begin{subfigure}[b]{0.3\linewidth}
+            \includegraphics[width=\linewidth]{figures/Lee Stages/grid 2.png}
+            \caption{itr 3}
+        \end{subfigure}
+        \begin{subfigure}[b]{0.3\linewidth}
+            \includegraphics[width=\linewidth]{figures/Lee Stages/grid 3.png}
+            \caption{itr 4}
+        \end{subfigure}
+        \begin{subfigure}[b]{0.3\linewidth}
+            \includegraphics[width=\linewidth]{figures/Lee Stages/grid 4.png}
+            \caption{itr 5}
+        \end{subfigure}
+        \begin{subfigure}[b]{0.3\linewidth}
+            \includegraphics[width=\linewidth]{figures/Lee Stages/grid 5.png}
+            \caption{itr 6}
+        \end{subfigure}
+        \begin{subfigure}[b]{0.3\linewidth}
+            \includegraphics[width=\linewidth]{figures/Lee Stages/grid 6.png}
+            \caption{itr 7}
+        \end{subfigure}
+        \begin{subfigure}[b]{0.3\linewidth}
+            \includegraphics[width=\linewidth]{figures/Lee Stages/grid 7.png}
+            \caption{itr 8}
+        \end{subfigure}
+        \begin{subfigure}[b]{0.3\linewidth}
+            \includegraphics[width=\linewidth]{figures/Lee Stages/grid 8.png}
+            \caption{itr 9}
+        \end{subfigure}
+        \begin{subfigure}[b]{0.3\linewidth}
+            \includegraphics[width=\linewidth]{figures/Lee Stages/grid 9.png}
+            \caption{itr 10}
+        \end{subfigure}
+        
+        \caption{Expansion Stage}
+      \end{figure}
+      
+
+    The \textit{Back-tracking} stage fig.\ref{fig:backtrackingStage} gets the path from the target $T$
+    to the source $S$.
+    Since we are dealing with consistent cost, then the backtracking stage is not that much of an issue
+    all we have to do is to decrement the cost by $1$ from the target, until we reach the source.
+    In other versions where inconsistent cost exist, and the cost of the path is the total length of it.
+    \textbf{Data structure} such as \textbf{priority queue} is used to \textit{pop-up}
+    the cell with minimum cost.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.35\textwidth]{figures/Lee Stages/back-track.png}
+        \caption{Back-tracking Stage}
+        \label{fig:backtrackingStage}
+    \end{figure}
+
+    The \textit{Clean up} stage fig.\ref{fig:cleanUpStage} converts the path from the source
+    to the target into obstacles (blocks) so that no interference between pathes may exist.
+    and then starts to connect another target to the source with that path of obstacles added.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.35\textwidth]{figures/Lee Stages/clean_up.png}
+        \caption{Clean up Stage}
+        \label{fig:cleanUpStage}
+    \end{figure}
+
+    \subsubsection{Mikami-Tabuchi algorithm}
     \label{MikamiSection}
     \subsubsection{Steiner algorithm}
     \label{SteinerSection}
