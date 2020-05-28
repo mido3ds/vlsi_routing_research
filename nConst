@@ -1,9 +1,9 @@
 #!/bin/bash
 
-trials=20
+trials=5
 n=5
 
 for area in 10 15 20 50 100; do
     echo $area
-    ./random_comp tmp/${area}x${area} 5 -w$area -h$area -n$n &
+    ./random_comp tmp/${area}x${area} $trials -w$area -h$area -n$n &
 done
