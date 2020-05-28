@@ -1,27 +1,53 @@
+\subsection{Goals}
+We want to answer those questions about our proposed algorithm:
+\begin{enumerate}
+    \item How fast is it?
+    \item How short are the found paths?
+\end{enumerate}
+Because \textit{fast} and \textit{short} are relative terms. We need to calculate them in a comparison with other approaches. 
+We chose to compare our results aginst:
+\begin{itemize}
+    \item Mikami: known by its speed, but very far from the optimal answer. Would give us insights on how much speed we have achieved.
+    \item Steiner Tree: Finds the optimal answer. We will use it to know whether our results are optimal.
+    \item Lee Maze: First algorithm used in the industry. Helps us know how far we have progressed relative to the industry practical techniques.
+\end{itemize}
+
 \subsection{Code}
 We implmented our proposd algorithm in \texttt{mod\_a\_star.py}, 
 lee maze algorithm in \texttt{maze\_lee.py},
 mikami-tabuchi algorithm in \texttt{mikami\_tabuchi.py}
 and steiner tree in \texttt{steiner\_tree.py}.
 
-All scripts read json input from the \texttt{stdin} and writes json output to \texttt{stdout}, so we can chain them with the other scripts. And they follow the \texttt{io\_schema} specs about io format.
+All scripts read json input from the \texttt{stdin} and writes json output to \texttt{stdout}, so we can chain them with the other scripts. And they follow the \texttt{io\_schema.md} specs about io format.
 
-Input contains a grid matrix to work on, each cell is either:
+\subsection{IO Specs}
+Input contains a $d\times h \times w$ grid matrix, where:
+\begin{itemize}
+    \item $d \rightarrow$ Number of layers, either 1 or 2.
+    \item $h \rightarrow$ Hieght.
+    \item $w \rightarrow$ Width.
+\end{itemize}
+Each cell is either:
 \begin{itemize}
     \item 0 $\rightarrow$ Empty.
     \item 1 $\rightarrow$ Obstacle.
-    \item 2 $\rightarrow$ VIA.
+    \item 2 $\rightarrow$ VIA, only when $d=2$ and must exist on the other layer too.
 \end{itemize}
-The input grid could be either 1 or 2 layers. Each input contains the source coordinations and a list of targets coordinations.
+Each input contains the source coordinates and a list of targets coordinates.
 
+Output should contain the found paths and their corresponding lengthes.
+
+Both input and output should be in json format. See \texttt{io\_schema.md} for more details.
+
+\subsection{Helper Scripts}
 We wrote a couple of scripts to assist with the comparison and testing:
 \begin{itemize}
-    \item \texttt{gen-input.py}: Generates random input that follows \texttt{io\_schema}. It doesn't gurantee that all targets are reachable. For more info \texttt{\$ python3 gen-input.py --help}
+    \item \texttt{gen-input.py}: Generates random input that follows \texttt{io\_schema.md}. It doesn't gurantee that all targets are reachable. For more info \texttt{\$ python3 gen-input.py --help}
     \item \texttt{verify.py}: Takes the input to the algorithm and its output and verifies the correctness of the result. See \texttt{\$ python3 verify.py --help}
-    \item \texttt{random\_test}: Generate infinite random inputs, run given algorithm on each test, and verify the results.
-    \item \texttt{random\_comp}: Generate $N$ random input, run each algorithm on each input and verify the results.
-    \item \texttt{nConst}: Call \texttt{random\_comp} $M$ times, each time with same number of targets, varying the grid area (w,h).
-    \item \texttt{areaConst}: Call \texttt{random\_comp} $M$ times, each time with same width and height of the input grid, varying the number of targets.
-    \item \texttt{merge\_comp}: Merge the outputs of \texttt{random\_comp} into one \texttt{tmp/summary.json} with the summary of the experiment.
+    \item \texttt{random\_test}: Generates infinite random inputs, run given algorithm on each test, and verify the results.
+    \item \texttt{random\_comp}: Generates $N$ random input, run each algorithm on each input and verify the results.
+    \item \texttt{nConst}: Calls \texttt{random\_comp} $M$ times, each time with same number of targets, varying the grid area (w,h).
+    \item \texttt{areaConst}: Calls \texttt{random\_comp} $M$ times, each time with same width and height of the input grid, varying the number of targets.
+    \item \texttt{merge\_comp}: Merges the outputs of \texttt{random\_comp} into one \texttt{tmp/summary.json} with the summary of the experiment.
     \item \texttt{plot.py}: Plots given \texttt{summary.json} through the stdin to \texttt{tmp/plot}.
 \end{itemize}
