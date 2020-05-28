@@ -116,8 +116,7 @@ plt.xticks(areas)
 plt.xlabel('Grid Width')
 plt.ylabel('Median Running Time (seconds)')
 plt.legend()
-plt.savefig('tmp/analyse/median_nConst.png')
-plt.show()
+plt.savefig('tmp/analyse/medianTime_nConst.png')
 
 plt.clf()
 plt.subplots_adjust(
@@ -143,7 +142,112 @@ plt.xticks(ns)
 plt.xlabel('#Targets')
 plt.ylabel('Median Running Time (seconds)')
 plt.legend()
-plt.savefig('tmp/analyse/median_areaConst.png')
-plt.show()
+plt.savefig('tmp/analyse/medianTime_areaConst.png')
 
 #########
+
+plt.clf()
+plt.subplots_adjust(
+    top=0.91,
+    bottom=0.095,
+    left=0.09,
+    right=0.93,
+    hspace=0.215,
+    wspace=0.155
+)
+
+plt.title('Max Path Cost vs. Grid Width, #Targets=5')
+for label, algo in algos.items():
+    costs_max = [np.max(algo['costs'][algo['areas'] == area])
+                 for area in areas]
+
+    plt.plot(
+        areas, costs_max,
+        label=label
+    )
+
+plt.xticks(areas)
+plt.xlabel('Grid Width')
+plt.ylabel('Max Path Cost')
+plt.legend()
+plt.savefig('tmp/analyse/maxCost_nConst.png')
+
+plt.clf()
+plt.subplots_adjust(
+    top=0.91,
+    bottom=0.095,
+    left=0.09,
+    right=0.93,
+    hspace=0.215,
+    wspace=0.155
+)
+
+plt.title('Max Path Cost vs. #Targets, Width=45')
+for label, algo in algos.items():
+    costs_max = [np.max(algo['costs'][algo['areas'] == area])
+                 for area in areas]
+
+    plt.plot(
+        ns, costs_max,
+        label=label
+    )
+
+plt.xticks(ns)
+plt.xlabel('#Targets')
+plt.ylabel('Max Path Cost')
+plt.legend()
+plt.savefig('tmp/analyse/maxCost_areaConst.png')
+
+
+#########
+plt.clf()
+plt.subplots_adjust(
+    top=0.91,
+    bottom=0.095,
+    left=0.09,
+    right=0.93,
+    hspace=0.215,
+    wspace=0.155
+)
+
+plt.title('Median Path Cost vs. Grid Width, #Targets=5')
+for label, algo in algos.items():
+    costs_median = [np.median(algo['costs'][algo['areas'] == area])
+                    for area in areas]
+
+    plt.plot(
+        areas, costs_median,
+        label=label
+    )
+
+plt.xticks(areas)
+plt.xlabel('Grid Width')
+plt.ylabel('Median Path Cost')
+plt.legend()
+plt.savefig('tmp/analyse/medianCost_nConst.png')
+
+plt.clf()
+plt.subplots_adjust(
+    top=0.91,
+    bottom=0.095,
+    left=0.09,
+    right=0.93,
+    hspace=0.215,
+    wspace=0.155
+)
+
+plt.title('Median Path Cost vs. #Targets, Width=45')
+for label, algo in algos.items():
+    costs_median = [np.median(algo['costs'][algo['areas'] == area])
+                    for area in areas]
+
+    plt.plot(
+        ns, costs_median,
+        label=label
+    )
+
+plt.xticks(ns)
+plt.xlabel('#Targets')
+plt.ylabel('Median Path Cost')
+plt.legend()
+plt.savefig('tmp/analyse/medianCost_areaConst.png')
