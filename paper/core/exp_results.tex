@@ -77,7 +77,7 @@ We made the plots using \texttt{plot.py}. The following is the line of thoughts 
 \subsubsection{Running Time Scatter}
 We started by scaterring all the running time per \#Targets and per Grid Width, see Fig. (\ref{fig:runningTime}). 
 
-The results are not very clear as the points of mikami and lee are squished down becaus of stein and a*. 
+The results are not very clear as the points of mikami and lee are compressed down becaus of stein and a*. 
 
 We can also notice a* has some outliers in time, specially in bigger grid widths (50, 100). This is why we may use the median function multiple times instead of the average.
 
@@ -95,4 +95,29 @@ We can also notice a* has some outliers in time, specially in bigger grid widths
 
 \caption{Running Time}
 \label{fig:runningTime}
+\end{figure}
+
+\subsubsection{Median Running Time}
+To make the plots clearer, we calculated the median of the runing time instead of scattering all points. See Fig. (\ref{fig:medianRunningTime}).
+
+We notice that both mikami and lee are very fast, they take less than 2 seconds no matter what the input size is.
+
+We also notice that steiner grows exponentially with both the size of the grid and the number of targets. But it's affected more by the growth of number of targets.
+
+But our new approach grows linearly with only the size of the grid. Its performance is independent from the number of targets.
+
+\begin{figure}
+\centering
+
+\begin{subfigure}[b]{\linewidth}
+    \includegraphics[width=\linewidth]{figures/plots/medianTime_areaConst.png}
+    \caption{Time / \#Targets}
+\end{subfigure}
+\begin{subfigure}[b]{\linewidth}
+    \includegraphics[width=\linewidth]{figures/plots/medianTime_nConst.png}
+    \caption{Time / Grid Width}
+\end{subfigure}
+
+\caption{Median Running Time}
+\label{fig:medianRunningTime}
 \end{figure}
