@@ -72,3 +72,27 @@ We started the experiments by running:
 After running the 2 scripts multiple times and then merging their outputs using \texttt{merge\_comp}, we had so far 396 unique experiment, each experiment is a unique input given to the 4 algorithms and all the 1584 results are in \texttt{summary.json}.
 
 \subsection{Comparisons}
+We made the plots using \texttt{plot.py}. The following is the line of thoughts we had through the comparison.
+
+\subsubsection{Running Time Scatter}
+We started by scaterring all the running time per \#Targets and per Grid Width, see Fig. (\ref{fig:runningTime}). 
+
+The results are not very clear as the points of mikami and lee are squished down becaus of stein and a*. 
+
+We can also notice a* has some outliers in time, specially in bigger grid widths (50, 100). This is why we may use the median function multiple times instead of the average.
+
+\begin{figure}
+\centering
+
+\begin{subfigure}[b]{\linewidth}
+    \includegraphics[width=\linewidth]{figures/plots/areaConst.png}
+    \caption{Time / \#Targets}
+\end{subfigure}
+\begin{subfigure}[b]{\linewidth}
+    \includegraphics[width=\linewidth]{figures/plots/nConst.png}
+    \caption{Time / Grid Width}
+\end{subfigure}
+
+\caption{Running Time}
+\label{fig:runningTime}
+\end{figure}
