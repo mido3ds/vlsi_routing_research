@@ -28,7 +28,7 @@ for algo, color in (('mikami_tabuchi.py', '.'), ('mod_a_star.py', '.'), ('steine
             )
         ),
         'costs': np.array(list(map(lambda x: x['total_cost'], subset))),
-        'targets': np.array(list(map(lambda x: x['total_targets'], subset))),
+        'targets': np.array(list(map(lambda x: x['total_targets'] / x['n'] * 100, subset))),
         'color': color
     }
 
@@ -63,6 +63,7 @@ for label, algo in algos.items():
 plt.xlabel('#Targets')
 plt.ylabel('Running Time (seconds)')
 plt.legend()
+plt.grid()
 plt.savefig('tmp/analyse/areaConst.png')
 
 plt.clf()
@@ -88,6 +89,7 @@ for label, algo in algos.items():
 plt.xlabel('Grid Width')
 plt.ylabel('Running Time (seconds)')
 plt.legend()
+plt.grid()
 plt.savefig('tmp/analyse/nConst.png')
 
 ###########
@@ -109,13 +111,16 @@ for label, algo in algos.items():
 
     plt.plot(
         areas, times_median,
-        label=label
+        label=label,
+        linewidth=(2 if label == 'mod_a_star.py' else 1),
+        marker=('o' if label == 'mod_a_star.py' else None)
     )
 
 plt.xticks(areas)
 plt.xlabel('Grid Width')
 plt.ylabel('Median Running Time (seconds)')
 plt.legend()
+plt.grid()
 plt.savefig('tmp/analyse/medianTime_nConst.png')
 
 plt.clf()
@@ -130,18 +135,22 @@ plt.subplots_adjust(
 
 plt.title('Median Running Time vs. #Targets, Width=45')
 for label, algo in algos.items():
-    times_median = [np.median(algo['times'][algo['areas'] == area])
-                    for area in areas]
+    non_inf = algo['times'][algo['times'] != math.inf]
+    non_inf_ns = algo['ns'][algo['times'] != math.inf]
+    times_median = [np.median(non_inf[non_inf_ns == n]) for n in ns]
 
     plt.plot(
         ns, times_median,
-        label=label
+        label=label,
+        linewidth=(2 if label == 'mod_a_star.py' else 1),
+        marker=('o' if label == 'mod_a_star.py' else None)
     )
 
 plt.xticks(ns)
 plt.xlabel('#Targets')
 plt.ylabel('Median Running Time (seconds)')
 plt.legend()
+plt.grid()
 plt.savefig('tmp/analyse/medianTime_areaConst.png')
 
 #########
@@ -163,13 +172,16 @@ for label, algo in algos.items():
 
     plt.plot(
         areas, costs_max,
-        label=label
+        label=label,
+        linewidth=(2 if label == 'mod_a_star.py' else 1),
+        marker=('o' if label == 'mod_a_star.py' else None)
     )
 
 plt.xticks(areas)
 plt.xlabel('Grid Width')
 plt.ylabel('Max Path Cost')
 plt.legend()
+plt.grid()
 plt.savefig('tmp/analyse/maxCost_nConst.png')
 
 plt.clf()
@@ -184,20 +196,22 @@ plt.subplots_adjust(
 
 plt.title('Max Path Cost vs. #Targets, Width=45')
 for label, algo in algos.items():
-    costs_max = [np.max(algo['costs'][algo['areas'] == area])
-                 for area in areas]
+    costs_max = [np.max(algo['costs'][algo['ns'] == n])
+                 for n in ns]
 
     plt.plot(
         ns, costs_max,
-        label=label
+        label=label,
+        linewidth=(2 if label == 'mod_a_star.py' else 1),
+        marker=('o' if label == 'mod_a_star.py' else None)
     )
 
 plt.xticks(ns)
 plt.xlabel('#Targets')
 plt.ylabel('Max Path Cost')
 plt.legend()
+plt.grid()
 plt.savefig('tmp/analyse/maxCost_areaConst.png')
-
 
 #########
 plt.clf()
@@ -210,21 +224,24 @@ plt.subplots_adjust(
     wspace=0.155
 )
 
-plt.title('Median Path Cost vs. Grid Width, #Targets=5')
+plt.title('Avg Path Cost vs. Grid Width, #Targets=5')
 for label, algo in algos.items():
-    costs_median = [np.median(algo['costs'][algo['areas'] == area])
-                    for area in areas]
+    costs_avg = [np.average(algo['costs'][algo['areas'] == area])
+                 for area in areas]
 
     plt.plot(
-        areas, costs_median,
-        label=label
+        areas, costs_avg,
+        label=label,
+        linewidth=(2 if label == 'mod_a_star.py' else 1),
+        marker=('o' if label == 'mod_a_star.py' else None)
     )
 
 plt.xticks(areas)
 plt.xlabel('Grid Width')
-plt.ylabel('Median Path Cost')
+plt.ylabel('Avg Path Cost')
 plt.legend()
-plt.savefig('tmp/analyse/medianCost_nConst.png')
+plt.grid()
+plt.savefig('tmp/analyse/avgCost_nConst.png')
 
 plt.clf()
 plt.subplots_adjust(
@@ -236,18 +253,135 @@ plt.subplots_adjust(
     wspace=0.155
 )
 
-plt.title('Median Path Cost vs. #Targets, Width=45')
+plt.title('Avg Path Cost vs. #Targets, Width=45')
 for label, algo in algos.items():
-    costs_median = [np.median(algo['costs'][algo['areas'] == area])
-                    for area in areas]
+    costs_avg = [np.average(algo['costs'][algo['ns'] == n])
+                 for n in ns]
 
     plt.plot(
-        ns, costs_median,
-        label=label
+        ns, costs_avg,
+        label=label,
+        linewidth=(2 if label == 'mod_a_star.py' else 1),
+        marker=('o' if label == 'mod_a_star.py' else None)
     )
 
 plt.xticks(ns)
 plt.xlabel('#Targets')
-plt.ylabel('Median Path Cost')
+plt.ylabel('Avg Path Cost')
 plt.legend()
-plt.savefig('tmp/analyse/medianCost_areaConst.png')
+plt.grid()
+plt.savefig('tmp/analyse/avgCost_areaConst.png')
+
+#########
+plt.clf()
+plt.subplots_adjust(
+    top=0.91,
+    bottom=0.095,
+    left=0.09,
+    right=0.93,
+    hspace=0.215,
+    wspace=0.155
+)
+
+plt.title('Total Path Cost vs. Grid Width, #Targets=5')
+for label, algo in algos.items():
+    costs_total = [np.sum(algo['costs'][algo['areas'] == area])
+                   for area in areas]
+
+    plt.plot(
+        areas, costs_total,
+        label=label,
+        linewidth=(2 if label == 'mod_a_star.py' else 1),
+        marker=('o' if label == 'mod_a_star.py' else None)
+    )
+
+plt.xticks(areas)
+plt.xlabel('Grid Width')
+plt.ylabel('Total Path Cost')
+plt.legend()
+plt.grid()
+plt.savefig('tmp/analyse/totalCost_nConst.png')
+
+plt.clf()
+plt.subplots_adjust(
+    top=0.91,
+    bottom=0.095,
+    left=0.09,
+    right=0.93,
+    hspace=0.215,
+    wspace=0.155
+)
+
+plt.title('Total Path Cost vs. #Targets, Width=45')
+for label, algo in algos.items():
+    costs_total = [np.sum(algo['costs'][algo['ns'] == n])
+                   for n in ns]
+
+    plt.plot(
+        ns, costs_total,
+        label=label,
+        linewidth=(2 if label == 'mod_a_star.py' else 1),
+        marker=('o' if label == 'mod_a_star.py' else None)
+    )
+
+plt.xticks(ns)
+plt.xlabel('#Targets')
+plt.ylabel('Total Path Cost')
+plt.legend()
+plt.grid()
+plt.savefig('tmp/analyse/totalCost_areaConst.png')
+
+#########
+plt.clf()
+plt.subplots_adjust(
+    top=0.91,
+    bottom=0.095,
+    left=0.09,
+    right=0.93,
+    hspace=0.215,
+    wspace=0.155
+)
+
+plt.title('% Reached Targets vs. Grid Width, #Targets=5')
+for label, algo in algos.items():
+    plt.plot(
+        areas, [np.sum(algo['targets'][algo['areas'] == area])
+                for area in areas],
+        label=label,
+        linewidth=(2 if label == 'mod_a_star.py' else 1),
+        marker=('o' if label == 'mod_a_star.py' else None)
+    )
+
+plt.xticks(areas)
+plt.xlabel('Grid Width')
+plt.ylabel('% Reached Targets')
+plt.legend()
+plt.grid()
+plt.savefig('tmp/analyse/percTargets_nConst.png')
+
+plt.clf()
+plt.subplots_adjust(
+    top=0.91,
+    bottom=0.095,
+    left=0.09,
+    right=0.93,
+    hspace=0.215,
+    wspace=0.155
+)
+
+plt.title('% Reached Targets vs. #Targets, Width=45')
+for label, algo in algos.items():
+    plt.plot(
+        ns, [np.sum(algo['targets'][algo['ns'] == n])
+             for n in ns],
+        label=label,
+        linewidth=(2 if label == 'mod_a_star.py' else 1),
+        marker=('o' if label == 'mod_a_star.py' else None)
+    )
+
+plt.xticks(ns)
+plt.xlabel('#Targets')
+plt.ylabel('% Reached Targets')
+plt.legend()
+plt.grid()
+plt.savefig('tmp/analyse/percTargets_areaConst.png')
