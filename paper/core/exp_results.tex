@@ -1,0 +1,27 @@
+\subsection{Code}
+We implmented our proposd algorithm in \texttt{mod\_a\_star.py}, 
+lee maze algorithm in \texttt{maze\_lee.py},
+mikami-tabuchi algorithm in \texttt{mikami\_tabuchi.py}
+and steiner tree in \texttt{steiner\_tree.py}.
+
+All scripts read json input from the \texttt{stdin} and writes json output to \texttt{stdout}, so we can chain them with the other scripts. And they follow the \texttt{io\_schema} specs about io format.
+
+Input contains a grid matrix to work on, each cell is either:
+\begin{itemize}
+    \item 0 $\rightarrow$ Empty.
+    \item 1 $\rightarrow$ Obstacle.
+    \item 2 $\rightarrow$ VIA.
+\end{itemize}
+The input grid could be either 1 or 2 layers. Each input contains the source coordinations and a list of targets coordinations.
+
+We wrote a couple of scripts to assist with the comparison and testing:
+\begin{itemize}
+    \item \texttt{gen-input.py}: Generates random input that follows \texttt{io\_schema}. It doesn't gurantee that all targets are reachable. For more info \texttt{\$ python3 gen-input.py --help}
+    \item \texttt{verify.py}: Takes the input to the algorithm and its output and verifies the correctness of the result. See \texttt{\$ python3 verify.py --help}
+    \item \texttt{random\_test}: Generate infinite random inputs, run given algorithm on each test, and verify the results.
+    \item \texttt{random\_comp}: Generate $N$ random input, run each algorithm on each input and verify the results.
+    \item \texttt{nConst}: Call \texttt{random\_comp} $M$ times, each time with same number of targets, varying the grid area (w,h).
+    \item \texttt{areaConst}: Call \texttt{random\_comp} $M$ times, each time with same width and height of the input grid, varying the number of targets.
+    \item \texttt{merge\_comp}: Merge the outputs of \texttt{random\_comp} into one \texttt{tmp/summary.json} with the summary of the experiment.
+    \item \texttt{plot.py}: Plots given \texttt{summary.json} through the stdin to \texttt{tmp/plot}.
+\end{itemize}
