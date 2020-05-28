@@ -1,7 +1,11 @@
 #!/bin/env python3
 '''
-Analyse the summary.json out of merge_comp and random_comp. Read summary.json from stdin.
-Requirements: python3.7, matplotlib
+Plot the summary.json out of merge_comp and random_comp. Read summary.json from stdin.
+
+Requirements: 
+    - python3.7
+    - matplotlib
+    - numpy
 '''
 import json
 import math
@@ -11,7 +15,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-Path("tmp/analyse").mkdir(parents=True, exist_ok=True)
+Path("tmp/plot").mkdir(parents=True, exist_ok=True)
 inp = json.load(sys.stdin)
 
 algos = {}
@@ -64,7 +68,7 @@ plt.xlabel('#Targets')
 plt.ylabel('Running Time (seconds)')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/analyse/areaConst.png')
+plt.savefig('tmp/plot/areaConst.png')
 
 plt.clf()
 plt.subplots_adjust(
@@ -90,7 +94,7 @@ plt.xlabel('Grid Width')
 plt.ylabel('Running Time (seconds)')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/analyse/nConst.png')
+plt.savefig('tmp/plot/nConst.png')
 
 ###########
 
@@ -121,7 +125,7 @@ plt.xlabel('Grid Width')
 plt.ylabel('Median Running Time (seconds)')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/analyse/medianTime_nConst.png')
+plt.savefig('tmp/plot/medianTime_nConst.png')
 
 plt.clf()
 plt.subplots_adjust(
@@ -151,7 +155,7 @@ plt.xlabel('#Targets')
 plt.ylabel('Median Running Time (seconds)')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/analyse/medianTime_areaConst.png')
+plt.savefig('tmp/plot/medianTime_areaConst.png')
 
 #########
 
@@ -182,7 +186,7 @@ plt.xlabel('Grid Width')
 plt.ylabel('Max Path Cost')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/analyse/maxCost_nConst.png')
+plt.savefig('tmp/plot/maxCost_nConst.png')
 
 plt.clf()
 plt.subplots_adjust(
@@ -211,7 +215,7 @@ plt.xlabel('#Targets')
 plt.ylabel('Max Path Cost')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/analyse/maxCost_areaConst.png')
+plt.savefig('tmp/plot/maxCost_areaConst.png')
 
 #########
 plt.clf()
@@ -241,7 +245,7 @@ plt.xlabel('Grid Width')
 plt.ylabel('Avg Path Cost')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/analyse/avgCost_nConst.png')
+plt.savefig('tmp/plot/avgCost_nConst.png')
 
 plt.clf()
 plt.subplots_adjust(
@@ -270,7 +274,7 @@ plt.xlabel('#Targets')
 plt.ylabel('Avg Path Cost')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/analyse/avgCost_areaConst.png')
+plt.savefig('tmp/plot/avgCost_areaConst.png')
 
 #########
 plt.clf()
@@ -300,7 +304,7 @@ plt.xlabel('Grid Width')
 plt.ylabel('Total Path Cost')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/analyse/totalCost_nConst.png')
+plt.savefig('tmp/plot/totalCost_nConst.png')
 
 plt.clf()
 plt.subplots_adjust(
@@ -329,7 +333,7 @@ plt.xlabel('#Targets')
 plt.ylabel('Total Path Cost')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/analyse/totalCost_areaConst.png')
+plt.savefig('tmp/plot/totalCost_areaConst.png')
 
 #########
 plt.clf()
@@ -357,7 +361,7 @@ plt.xlabel('Grid Width')
 plt.ylabel('% Reached Targets')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/analyse/percTargets_nConst.png')
+plt.savefig('tmp/plot/percTargets_nConst.png')
 
 plt.clf()
 plt.subplots_adjust(
@@ -384,7 +388,7 @@ plt.xlabel('#Targets')
 plt.ylabel('% Reached Targets')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/analyse/percTargets_areaConst.png')
+plt.savefig('tmp/plot/percTargets_areaConst.png')
 
 #########
 plt.clf()
@@ -401,8 +405,8 @@ plt.title('# Timeouts vs. Grid Width, #Targets=5')
 for label, algo in algos.items():
     y = [(algo['times'][algo['areas'] == area] == math.inf).sum()
          for area in areas]
-    if len(y) == 0:
-        break
+    if sum(y) == 0:
+        continue
     plt.plot(
         areas, y,
         label=label,
@@ -416,7 +420,7 @@ plt.xlabel('Grid Width')
 plt.ylabel('# Timeouts')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/analyse/timeouts_nConst.png')
+plt.savefig('tmp/plot/timeouts_nConst.png')
 
 plt.clf()
 plt.subplots_adjust(
@@ -432,8 +436,8 @@ plt.title('# Timeouts vs. #Targets, Width=45')
 for label, algo in algos.items():
     y = [(algo['times'][algo['ns'] == n] == math.inf).sum()
          for n in ns]
-    if len(y) == 0:
-        break
+    if sum(y) == 0:
+        continue
     plt.plot(
         ns, y,
         label=label,
@@ -447,4 +451,4 @@ plt.xlabel('#Targets')
 plt.ylabel('# Timeouts')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/analyse/timeouts_areaConst.png')
+plt.savefig('tmp/plot/timeouts_areaConst.png')
