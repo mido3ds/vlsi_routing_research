@@ -4,12 +4,14 @@ Analyse the summary.json out of merge_comp and random_comp. Read summary.json fr
 Requirements: python3.7, matplotlib
 '''
 import json
-import sys
 import math
+import sys
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 
+Path("tmp/analyse").mkdir(parents=True, exist_ok=True)
 inp = json.load(sys.stdin)
 
 algos = {}
@@ -30,8 +32,16 @@ for algo, color in (('mikami_tabuchi.py', '.'), ('mod_a_star.py', '.'), ('steine
         'color': color
     }
 
+areas = sorted(list(set(algos['mikami_tabuchi.py']['areas'])))
+areas.remove(45)
+
+ns = sorted(list(set(algos['mikami_tabuchi.py']['ns'])))
+ns.remove(5)
+
+###########
+
 plt.clf()
-plt.title('W=H=45, different N (num of targets)')
+plt.title('Running Time vs. #Targets, Width=45')
 for label, algo in algos.items():
     cond = algo['areas'] == 45
     plt.plot(
@@ -41,13 +51,13 @@ for label, algo in algos.items():
     )
     plt.xticks(list(set(algo['ns'][cond])))
 
-plt.xlabel('Number of Targets')
+plt.xlabel('#Targets')
 plt.ylabel('Running Time (seconds)')
 plt.legend()
-plt.savefig('areaConst.png')
+plt.savefig('tmp/analyse/areaConst.png')
 
 plt.clf()
-plt.title('N=5, different W,H (where W=H)')
+plt.title('Running Time vs. Grid Width, #Targets=5')
 for label, algo in algos.items():
     cond = algo['areas'] != 45
     plt.plot(
@@ -57,11 +67,55 @@ for label, algo in algos.items():
     )
     plt.xticks(list(set(algo['areas'][cond])))
 
-plt.xlabel('W or H')
+plt.xlabel('Grid Width')
 plt.ylabel('Running Time (seconds)')
 plt.legend()
-plt.savefig('nConst.png')
+plt.savefig('tmp/analyse/nConst.png')
 
+###########
 
-def sort_x(x, y):
-    return zip(*sorted(zip(x, y), key=lambda x: x[0]))
+plt.close()
+plt.figure(figsize=(14, 6))
+plt.subplots_adjust(
+    top=0.905,
+    bottom=0.095,
+    left=0.08,
+    right=0.925,
+    hspace=0.215,
+    wspace=0.155
+)
+
+plt.subplot(1, 2, 1)
+plt.title('Median Running Time vs. Grid Width, #Targets=5')
+for label, algo in algos.items():
+    times_median = [np.median(algo['times'][algo['areas'] == area])
+                    for area in areas]
+
+    plt.plot(
+        areas, times_median,
+        label=label
+    )
+
+plt.xticks(areas)
+plt.xlabel('Grid Width')
+plt.ylabel('Median Running Time (seconds)')
+plt.legend()
+
+plt.subplot(1, 2, 2)
+plt.title('Median Running Time vs. #Targets, Width=45')
+for label, algo in algos.items():
+    times_median = [np.median(algo['times'][algo['areas'] == area])
+                    for area in areas]
+
+    plt.plot(
+        ns, times_median,
+        label=label
+    )
+
+plt.xticks(ns)
+plt.xlabel('#Targets')
+plt.ylabel('Median Running Time (seconds)')
+plt.legend()
+
+plt.savefig('tmp/analyse/median.png')
+plt.show()
