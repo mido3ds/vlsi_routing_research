@@ -45,9 +45,30 @@ We wrote a couple of scripts to assist with the comparison and testing:
     \item \texttt{gen-input.py}: Generates random input that follows \texttt{io\_schema.md}. It doesn't gurantee that all targets are reachable. For more info \texttt{\$ python3 gen-input.py --help}
     \item \texttt{verify.py}: Takes the input to the algorithm and its output and verifies the correctness of the result. See \texttt{\$ python3 verify.py --help}
     \item \texttt{random\_test}: Generates infinite random inputs, run given algorithm on each test, and verify the results.
-    \item \texttt{random\_comp}: Generates $N$ random input, run each algorithm on each input and verify the results.
+    \item \texttt{random\_comp}: Generates $N$ random input, run each algorithm on each input, calls \texttt{calc\_total.py} to calculate total cost and verify the results.
     \item \texttt{nConst}: Calls \texttt{random\_comp} $M$ times, each time with same number of targets, varying the grid area (w,h).
     \item \texttt{areaConst}: Calls \texttt{random\_comp} $M$ times, each time with same width and height of the input grid, varying the number of targets.
     \item \texttt{merge\_comp}: Merges the outputs of \texttt{random\_comp} into one \texttt{tmp/summary.json} with the summary of the experiment.
     \item \texttt{plot.py}: Plots given \texttt{summary.json} through the stdin to \texttt{tmp/plot}.
 \end{itemize}
+
+\subsection{The Experiment}
+For simplicity, we assumed all grids are squares. So $w=h$ in all tests.
+We also assumed number of layers $d=2$ in all tests.
+
+We need to very the area while the number of targets is constant. And in the other case, vary the number of targets while the area is constant.
+And in both, we will record and plot the running times and costs.
+
+We expect some algorithm to take a very big time to calculate the output. Unfortunately we can't just let it run forever. So we just sat the timeout as 5 minutes. This is why we collected the number of found targets, so we compare how many times an implmentation has timeouted and resulted in 0 final targets found.
+
+\textbf{Note:} Not all targets in some input have to be reachable. Bigger grids have bigger probability of having non-reachable targets.
+
+We started the experiments by running:
+\begin{enumerate}
+    \item \texttt{nConst}, which for each area of areas of grid in [10, 15, 20, 50, 100], conducts 5 random experiments on each algo given the same random input (for each experiment) in which the number of targets ($n$) is const and $n = 5$.
+    \item \texttt{areaConst}, which for each number of targets in [6, 10, 15, 20, 50], conducts 20 random experiments on each algo given the same random input (for each experiment) in which the area of the grid ($w,h$) is constant and $w = h = 45$.
+\end{enumerate}
+
+After running the 2 scripts multiple times and then merging their outputs using \texttt{merge\_comp}, we had so far 396 unique experiment, each experiment is a unique input given to the 4 algorithms and all the 1584 results are in \texttt{summary.json}.
+
+\subsection{Comparisons}
