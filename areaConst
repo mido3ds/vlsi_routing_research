@@ -3,7 +3,7 @@
 area=45
 trials=20
 
-for n in 5 6 10 15 20 50; do
+for n in 6 10 15 20 50; do
     echo $n
-    ./random_comp tmp/areaConst/${area}x${area} 5 -w$area -h$area -n$n &
+    ./random_comp tmp/${area}x${area} 5 -w$area -h$area -n$n &
 done
