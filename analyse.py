@@ -385,3 +385,66 @@ plt.ylabel('% Reached Targets')
 plt.legend()
 plt.grid()
 plt.savefig('tmp/analyse/percTargets_areaConst.png')
+
+#########
+plt.clf()
+plt.subplots_adjust(
+    top=0.91,
+    bottom=0.095,
+    left=0.09,
+    right=0.93,
+    hspace=0.215,
+    wspace=0.155
+)
+
+plt.title('# Timeouts vs. Grid Width, #Targets=5')
+for label, algo in algos.items():
+    y = [(algo['times'][algo['areas'] == area] == math.inf).sum()
+         for area in areas]
+    if len(y) == 0:
+        break
+    plt.plot(
+        areas, y,
+        label=label,
+        linewidth=(2 if label == 'mod_a_star.py' else 1),
+        marker=('o' if label == 'mod_a_star.py' else '^' if label ==
+                'steiner_tree.py' else None)
+    )
+
+plt.xticks(areas)
+plt.xlabel('Grid Width')
+plt.ylabel('# Timeouts')
+plt.legend()
+plt.grid()
+plt.savefig('tmp/analyse/timeouts_nConst.png')
+
+plt.clf()
+plt.subplots_adjust(
+    top=0.91,
+    bottom=0.095,
+    left=0.09,
+    right=0.93,
+    hspace=0.215,
+    wspace=0.155
+)
+
+plt.title('# Timeouts vs. #Targets, Width=45')
+for label, algo in algos.items():
+    y = [(algo['times'][algo['ns'] == n] == math.inf).sum()
+         for n in ns]
+    if len(y) == 0:
+        break
+    plt.plot(
+        ns, y,
+        label=label,
+        linewidth=(2 if label == 'mod_a_star.py' else 1),
+        marker=('o' if label == 'mod_a_star.py' else '^' if label ==
+                'steiner_tree.py' else None)
+    )
+
+plt.xticks(ns)
+plt.xlabel('#Targets')
+plt.ylabel('# Timeouts')
+plt.legend()
+plt.grid()
+plt.savefig('tmp/analyse/timeouts_areaConst.png')
