@@ -41,6 +41,15 @@ ns.remove(5)
 ###########
 
 plt.clf()
+plt.subplots_adjust(
+    top=0.91,
+    bottom=0.095,
+    left=0.09,
+    right=0.93,
+    hspace=0.215,
+    wspace=0.155
+)
+
 plt.title('Running Time vs. #Targets, Width=45')
 for label, algo in algos.items():
     cond = algo['areas'] == 45
@@ -57,6 +66,15 @@ plt.legend()
 plt.savefig('tmp/analyse/areaConst.png')
 
 plt.clf()
+plt.subplots_adjust(
+    top=0.91,
+    bottom=0.095,
+    left=0.09,
+    right=0.93,
+    hspace=0.215,
+    wspace=0.155
+)
+
 plt.title('Running Time vs. Grid Width, #Targets=5')
 for label, algo in algos.items():
     cond = algo['areas'] != 45
@@ -74,18 +92,16 @@ plt.savefig('tmp/analyse/nConst.png')
 
 ###########
 
-plt.close()
-plt.figure(figsize=(14, 6))
+plt.clf()
 plt.subplots_adjust(
-    top=0.905,
+    top=0.91,
     bottom=0.095,
-    left=0.08,
-    right=0.925,
+    left=0.09,
+    right=0.93,
     hspace=0.215,
     wspace=0.155
 )
 
-plt.subplot(1, 2, 1)
 plt.title('Median Running Time vs. Grid Width, #Targets=5')
 for label, algo in algos.items():
     times_median = [np.median(algo['times'][algo['areas'] == area])
@@ -100,8 +116,19 @@ plt.xticks(areas)
 plt.xlabel('Grid Width')
 plt.ylabel('Median Running Time (seconds)')
 plt.legend()
+plt.savefig('tmp/analyse/median_nConst.png')
+plt.show()
 
-plt.subplot(1, 2, 2)
+plt.clf()
+plt.subplots_adjust(
+    top=0.91,
+    bottom=0.095,
+    left=0.09,
+    right=0.93,
+    hspace=0.215,
+    wspace=0.155
+)
+
 plt.title('Median Running Time vs. #Targets, Width=45')
 for label, algo in algos.items():
     times_median = [np.median(algo['times'][algo['areas'] == area])
@@ -116,6 +143,7 @@ plt.xticks(ns)
 plt.xlabel('#Targets')
 plt.ylabel('Median Running Time (seconds)')
 plt.legend()
-
-plt.savefig('tmp/analyse/median.png')
+plt.savefig('tmp/analyse/median_areaConst.png')
 plt.show()
+
+#########
