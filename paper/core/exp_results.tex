@@ -48,8 +48,8 @@ We wrote a couple of scripts to assist with the comparison and testing:
     \item \texttt{random\_comp}: Generates $N$ random input, run each algorithm on each input, calls \texttt{calc\_total.py} to calculate total cost and verify the results.
     \item \texttt{nConst}: Calls \texttt{random\_comp} $M$ times, each time with same number of targets, varying the grid area (w,h).
     \item \texttt{areaConst}: Calls \texttt{random\_comp} $M$ times, each time with same width and height of the input grid, varying the number of targets.
-    \item \texttt{merge\_comp}: Merges the outputs of \texttt{random\_comp} into one \texttt{tmp/summary.json} with the summary of the experiment.
-    \item \texttt{plot.py}: Plots given \texttt{summary.json} through the stdin to \texttt{tmp/plot}.
+    \item \texttt{merge\_comp}: Merges the outputs of \texttt{random\_comp} into one \texttt{datasets/summary.json} with the summary of the experiment.
+    \item \texttt{plot.py}: Plots given \texttt{summary.json} through the stdin to \texttt{datasets/plot}.
 \end{itemize}
 
 \subsection{The Experiment}

@@ -9,13 +9,13 @@ fi
 PY="$1"
 shift
 
-mkdir -p ./tmp/"$PY"/{in,out,err}
+mkdir -p ./datasets/"$PY"/{in,out,err}
 
 while true; do
     F="$(mktemp XXXXX -u)"
-    IN="./tmp/$PY/in/$F.json"
-    OUT="./tmp/$PY/out/$F.json"
-    ERR="./tmp/$PY/err/$F.txt"
+    IN="./datasets/$PY/in/$F.json"
+    OUT="./datasets/$PY/out/$F.json"
+    ERR="./datasets/$PY/err/$F.txt"
 
     echo "$IN" '->' "$OUT" , "$ERR"
     ./gen-input.py $@ >"$IN" 

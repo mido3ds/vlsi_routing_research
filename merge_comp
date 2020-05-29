@@ -3,7 +3,7 @@
 
 set -e
 
-cd tmp
+cd datasets
 
 dirs=$(ls -1 | grep x)
 

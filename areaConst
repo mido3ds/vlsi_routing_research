@@ -5,5 +5,5 @@ trials=20
 
 for n in 6 10 15 20 50; do
     echo $n
-    ./random_comp tmp/${area}x${area} $trials -w$area -h$area -n$n &
+    ./random_comp datasets/${area}x${area} $trials -w$area -h$area -n$n &
 done

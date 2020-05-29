@@ -282,7 +282,7 @@ ref
 
 #ev files
 ev_*
-tmp
+datasets
 
 .vscode
 

@@ -81,7 +81,7 @@ optional arguments:
 1. Choose any algorithm file name, let it be `steiner_tree.py` .
 2. Choose arguments to `gen-input.py` , let's say we want to limit w between 2, 10 and h between 10, 20 and the number of targets to be 5 exactly.
 3. `$ ./random_test steiner_tree.py -w 2,10 -h 10,20 -n 5` 
-4. input, output and err files are printed to stdout and exist in `tmp/steiner_tree.py/{in,out,err}` .
+4. input, output and err files are printed to stdout and exist in `datasets/steiner_tree.py/{in,out,err}` .
 5. This script will run forever (unless an error ocurred) and verifies each out.
 
 ## Running Experiment Scripts
@@ -91,7 +91,7 @@ To conduct experiments over all algorithms, see `random_comp` :
 ``` sh
 $ ./random_comp 
 Usage: random_comp path/to/output/dir num_of_trials [ options to gen-inpu.py ]
-$ ./random_comp tmp/10x10 100 -w10 -h10 # 100 trials of w=10, h=10 stored in tmp/10x10
+$ ./random_comp datasets/10x10 100 -w10 -h10 # 100 trials of w=10, h=10 stored in datasets/10x10
 ...
 ...
 ```
@@ -102,5 +102,5 @@ To run the same experiments conducted in the paper, run:
 $ ./areaConst                       # vary n, while area is const
 $ ./nConst                          # vary the area, while n is const
 $ ./merge_comp                      # create summary.json, reruns missing tests
-$ python3 plot.py <tmp/summary.json # dump plots in tmp/plot
+$ python3 plot.py <datasets/summary.json # dump plots in datasets/plot
 ```

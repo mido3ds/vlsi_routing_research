@@ -15,7 +15,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-Path("tmp/plot").mkdir(parents=True, exist_ok=True)
+Path("datasets/plot").mkdir(parents=True, exist_ok=True)
 inp = json.load(sys.stdin)
 
 algos = {}
@@ -68,7 +68,7 @@ plt.xlabel('#Targets')
 plt.ylabel('Running Time (seconds)')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/plot/areaConst.png')
+plt.savefig('datasets/plot/areaConst.png')
 
 plt.clf()
 plt.subplots_adjust(
@@ -94,7 +94,7 @@ plt.xlabel('Grid Width')
 plt.ylabel('Running Time (seconds)')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/plot/nConst.png')
+plt.savefig('datasets/plot/nConst.png')
 
 ###########
 
@@ -125,7 +125,7 @@ plt.xlabel('Grid Width')
 plt.ylabel('Median Running Time (seconds)')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/plot/medianTime_nConst.png')
+plt.savefig('datasets/plot/medianTime_nConst.png')
 
 plt.clf()
 plt.subplots_adjust(
@@ -155,7 +155,7 @@ plt.xlabel('#Targets')
 plt.ylabel('Median Running Time (seconds)')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/plot/medianTime_areaConst.png')
+plt.savefig('datasets/plot/medianTime_areaConst.png')
 
 #########
 
@@ -186,7 +186,7 @@ plt.xlabel('Grid Width')
 plt.ylabel('Max Path Cost')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/plot/maxCost_nConst.png')
+plt.savefig('datasets/plot/maxCost_nConst.png')
 
 plt.clf()
 plt.subplots_adjust(
@@ -215,7 +215,7 @@ plt.xlabel('#Targets')
 plt.ylabel('Max Path Cost')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/plot/maxCost_areaConst.png')
+plt.savefig('datasets/plot/maxCost_areaConst.png')
 
 #########
 plt.clf()
@@ -245,7 +245,7 @@ plt.xlabel('Grid Width')
 plt.ylabel('Avg Path Cost')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/plot/avgCost_nConst.png')
+plt.savefig('datasets/plot/avgCost_nConst.png')
 
 plt.clf()
 plt.subplots_adjust(
@@ -274,7 +274,7 @@ plt.xlabel('#Targets')
 plt.ylabel('Avg Path Cost')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/plot/avgCost_areaConst.png')
+plt.savefig('datasets/plot/avgCost_areaConst.png')
 
 #########
 plt.clf()
@@ -304,7 +304,7 @@ plt.xlabel('Grid Width')
 plt.ylabel('Total Path Cost')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/plot/totalCost_nConst.png')
+plt.savefig('datasets/plot/totalCost_nConst.png')
 
 plt.clf()
 plt.subplots_adjust(
@@ -333,7 +333,7 @@ plt.xlabel('#Targets')
 plt.ylabel('Total Path Cost')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/plot/totalCost_areaConst.png')
+plt.savefig('datasets/plot/totalCost_areaConst.png')
 
 #########
 plt.clf()
@@ -361,7 +361,7 @@ plt.xlabel('Grid Width')
 plt.ylabel('% Reached Targets')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/plot/percTargets_nConst.png')
+plt.savefig('datasets/plot/percTargets_nConst.png')
 
 plt.clf()
 plt.subplots_adjust(
@@ -388,7 +388,7 @@ plt.xlabel('#Targets')
 plt.ylabel('% Reached Targets')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/plot/percTargets_areaConst.png')
+plt.savefig('datasets/plot/percTargets_areaConst.png')
 
 #########
 plt.clf()
@@ -420,7 +420,7 @@ plt.xlabel('Grid Width')
 plt.ylabel('# Timeouts')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/plot/timeouts_nConst.png')
+plt.savefig('datasets/plot/timeouts_nConst.png')
 
 plt.clf()
 plt.subplots_adjust(
@@ -451,4 +451,4 @@ plt.xlabel('#Targets')
 plt.ylabel('# Timeouts')
 plt.legend()
 plt.grid()
-plt.savefig('tmp/plot/timeouts_areaConst.png')
+plt.savefig('datasets/plot/timeouts_areaConst.png')
