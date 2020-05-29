@@ -5,7 +5,7 @@ We want to answer those questions about our proposed algorithm:
     \item How short are the found paths?
 \end{enumerate}
 Because \textit{fast} and \textit{short} are relative terms. We need to calculate them in a comparison with other approaches. 
-We chose to compare our results aginst:
+We chose to compare our results against:
 \begin{itemize}
     \item Mikami: known by its speed, but very far from the optimal answer. Would give us insights on how much speed we have achieved.
     \item Steiner Tree: Finds the optimal answer. We will use it to know whether our results are optimal.
@@ -13,18 +13,18 @@ We chose to compare our results aginst:
 \end{itemize}
 
 \subsection{Code}
-We implmented our proposd algorithm in \texttt{mod\_a\_star.py}, 
+We implemented our proposed algorithm in \texttt{mod\_a\_star.py}, 
 lee maze algorithm in \texttt{maze\_lee.py},
 mikami-tabuchi algorithm in \texttt{mikami\_tabuchi.py}
-and steiner tree in \texttt{steiner\_tree.py}.
+and Steiner tree in \texttt{steiner\_tree.py}.
 
-All scripts read json input from the \texttt{stdin} and writes json output to \texttt{stdout}, so we can chain them with the other scripts. And they follow the \texttt{io\_schema.md} specs about io format.
+All scripts read JSON input from the \texttt{stdin} and writes json output to \texttt{stdout}, so we can chain them with the other scripts. And they follow the \texttt{io\_schema.md} specs about io format.
 
 \subsection{IO Specs}
 Input contains a $d\times h \times w$ grid matrix, where:
 \begin{itemize}
     \item $d \rightarrow$ Number of layers, either 1 or 2.
-    \item $h \rightarrow$ Hieght.
+    \item $h \rightarrow$ Height.
     \item $w \rightarrow$ Width.
 \end{itemize}
 Each cell is either:
@@ -35,14 +35,14 @@ Each cell is either:
 \end{itemize}
 Each input contains the source coordinates and a list of targets coordinates.
 
-Output should contain the found paths and their corresponding lengthes.
+Output should contain the found paths and their corresponding lengths.
 
-Both input and output should be in json format. See \texttt{io\_schema.md} for more details.
+Both input and output should be in JSON format. See \texttt{io\_schema.md} for more details.
 
 \subsection{Helper Scripts}
 We wrote a couple of scripts to assist with the comparison and testing:
 \begin{itemize}
-    \item \texttt{gen-input.py}: Generates random input that follows \texttt{io\_schema.md}. It doesn't gurantee that all targets are reachable. For more info \texttt{\$ python3 gen-input.py --help}
+    \item \texttt{gen-input.py}: Generates random input that follows \texttt{io\_schema.md}. It doesn't guarantee that all targets are reachable. For more info \texttt{\$ python3 gen-input.py --help}
     \item \texttt{verify.py}: Takes the input to the algorithm and its output and verifies the correctness of the result. See \texttt{\$ python3 verify.py --help}
     \item \texttt{random\_test}: Generates infinite random inputs, run given algorithm on each test, and verify the results.
     \item \texttt{random\_comp}: Generates $N$ random input, run each algorithm on each input, calls \texttt{calc\_total.py} to calculate total cost and verify the results.
@@ -59,7 +59,7 @@ We also assumed number of layers $d=2$ in all tests.
 We need to very the area while the number of targets is constant. And in the other case, vary the number of targets while the area is constant.
 And in both, we will record and plot the running times and costs.
 
-We expect some algorithm to take a very big time to calculate the output. Unfortunately we can't just let it run forever. So we just sat the timeout as 5 minutes. This is why we collected the number of found targets, so we compare how many times an implmentation has timeouted and resulted in 0 final targets found.
+We expect some algorithm to take a very big time to calculate the output. Unfortunately we can't just let it run forever. So we just sat the timeout as 5 minutes. This is why we collected the number of found targets, so we compare how many times an implementation has time-outed and resulted in 0 final targets found.
 
 \textbf{Note:} Not all targets in some input have to be reachable. Bigger grids have bigger probability of having non-reachable targets.
 
@@ -75,9 +75,9 @@ After running the 2 scripts multiple times and then merging their outputs using 
 We made the plots using \texttt{plot.py}. The following is the line of thoughts we had through the comparison.
 
 \subsubsection{Running Time Scatter}
-We started by scaterring all the running time per \#Targets and per Grid Width, see Fig. (\ref{fig:runningTime}). 
+We started by scattering all the running time per \#Targets and per Grid Width, see Fig. (\ref{fig:runningTime}). 
 
-The results are not very clear as the points of mikami and lee are compressed down because of steiner and a*. 
+The results are not very clear as the points of mikami and lee are compressed down because of Steiner and a*. 
 
 We can also notice a* has some outliers in time, specially in bigger grid widths (50, 100). This is why we may use the median function multiple times instead of the average.
 
@@ -98,11 +98,11 @@ We can also notice a* has some outliers in time, specially in bigger grid widths
 \end{figure}
 
 \subsubsection{Median Running Time}
-To make the plots clearer, we calculated the median of the runing time instead of scattering all points. See Fig. (\ref{fig:medianRunningTime}).
+To make the plots clearer, we calculated the median of the running time instead of scattering all points. See Fig. (\ref{fig:medianRunningTime}).
 
 We notice that both mikami and lee are very fast, they take less than 2 seconds no matter what the input size is.
 
-We also notice that steiner grows exponentially with both the size of the grid and the number of targets. But it's affected more by the growth of number of targets.
+We also notice that Steiner grows exponentially with both the size of the grid and the number of targets. But it's affected more by the growth of number of targets.
 
 But our new approach grows linearly with only the size of the grid. Its performance is independent from the number of targets.
 
@@ -180,13 +180,13 @@ Mikami-Tabuchi was the worst overall in the costs.
 \end{figure}
 
 \subsubsection{Errors}
-We noticed that some algorithms went to 0 on cost. So we calculated the precentage of found targets by each algorithms, to compare how many targets each algorithms found per $n$. Fig. (\ref{fig:percTargets}) shows that precentage.
+We noticed that some algorithms went to 0 on cost. So we calculated the percentage of found targets by each algorithms, to compare how many targets each algorithms found per $n$. Fig. (\ref{fig:percTargets}) shows that percentage.
 
-The precentage of targets alone don't explain the reason why both a* and steiner had some zero costs.  Is it because of timeouts? Or because some issues with our code?
+The percentage of targets alone don't explain the reason why both a* and Steiner had some zero costs.  Is it because of timeouts? Or because some issues with our code?
 
-Fig. (\ref{fig:timeouts}) is a plot of timeouts per area and per $n$. We notice that both steiner and a* have high timeouting chances compared to mikami and lee. Unfortunately, we can't increase the timeout threshold more than 5 minutes, otherwise the nearly 2000 tests won't finish executing.
+Fig. (\ref{fig:timeouts}) is a plot of timeouts per area and per $n$. We notice that both Steiner and a* have high time-outing chances compared to Mikami and lee. Unfortunately, we can't increase the timeout threshold more than 5 minutes, otherwise the nearly 2000 tests won't finish executing.
 
-So far, given this data, we can conclude that the high than average error rate of a* and steiner are due to their high chances of timeouting.
+So far, given this data, we can conclude that the high than average error rate of a* and Steiner are due to their high chances of time-outing.
 
 \begin{figure}
 \centering

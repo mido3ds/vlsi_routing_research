@@ -3,7 +3,7 @@
     \cite{MooreRef}, after a couple of years in 1961 Lee, C. Y. presented the idea of simulating the 
     board wiring on electronics board as a Maze \cite{LeeRef}. Starting from there the idea of Lee Maze
     has been revisited many times, in 1983 Hightower, D. made more contribution to the idea such that
-    using modern computers and virtual memories we can memic the routing problem precisely providing 
+    using modern computers and virtual memories we can mimic the routing problem precisely providing 
     different techniques \cite{HightowerRef}.
 
 \subsection{Router Problem Anatomy}
@@ -50,12 +50,12 @@
     This is one of the most common and origin routing algorithms \cite{LeeRef}.
 
     If there's a path between source $S$ and some target $T$, the algorithm will definitely find it,
-    and in case of consistent cost (ie. no variable cost) the algorithm will not only find the 
+    and in case of consistent cost (i.e. no variable cost) the algorithm will not only find the 
     a path but also the shortest one.
 
     It uses BFS (breadth-first search) to connect targets with the source.
 
-    It works appropriately with multiple layers (ie, where vias exist).
+    It works appropriately with multiple layers (i.e. where vias exist).
 
     The algorithm has three main stages:
     \begin{itemize}
@@ -64,7 +64,7 @@
         \item Clean up
     \end{itemize}
 
-    The \textit{Expansion} stage fig.\ref{expansionStage} creates like a \textit{halo} shape around the source,
+    The \textit{Expansion} stage fig.\ref{fig:expansionStage} creates like a \textit{halo} shape around the source,
     and it gets larger and the cost of each cell is incremented,
     unless there's an obstacle (block cell),
     until it hits a target and terminates,
@@ -138,7 +138,7 @@
     \end{figure}
 
     The \textit{Clean up} stage fig.\ref{fig:cleanUpStage} converts the path from the source
-    to the target into obstacles (blocks) so that no interference between pathes may exist.
+    to the target into obstacles (blocks) so that no interference between paths may exist.
     and then starts to connect another target to the source with that path of obstacles added.
 
     \begin{figure}[H]
@@ -156,7 +156,7 @@
     \label{SteinerSection}
     is the baseline algorithm for our work.
 
-    The definition of Steiner Tree is very general, we are mainly concerned with minimum Stiener tree problem,
+    The definition of Steiner Tree is very general, we are mainly concerned with minimum Steiner tree problem,
     and it's algorithm.
 
     Minimum Steiner Tree $(MST)$ algorithm provides the minimum spanning tree that may exist in the graph,
@@ -164,7 +164,7 @@
 
     It's basic idea is that, after including the first path fig.\ref{fig:steiner_1} -the shortest/closest target to the source-
     any other target that will be connected to the source may be connected to any point of the 
-    extracted path, so that it could be connected to the main source or any Stiener Point that's being produced (Grey cells),
+    extracted path, so that it could be connected to the main source or any Steiner Point that's being produced (Grey cells),
     and to connect that target, we need to know which of the left targets has the minimum distance to the source
     and all of the Steiner Points fig.\ref{fig:steiner_2}, then pick up the one with the minimum cost fig.\ref{fig:steiner_2},
     and that's what makes time grows exponentially.
