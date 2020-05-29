@@ -1,33 +1,23 @@
-\subsection{Basic Terms} %There's a space here, don't erase it.
-
-Maze: it's a $[W x H]$ matrix that contains cells, used to simulate the grid.
-
-Cells: each cell is a pin, a cell could represent a pin or an obstalce.
-
-Pin: the part where transistors gets connected to.
-
-Source: the starting point (pin) that needs to be connected to some targets.
-
-Tatgets: one or many point/s (pin/s) that needs to be connected to the source in minimum cost.
-
-Obstacle: a block that wires can't go through.
-
-Vias: like a ladder to the upper or lower layer.
-
-Wire: what connects the pins with each others.
-
-Path: the route which the wire will take in order to connect the source with all of the targets.
-
-Cost: the length of the path, the longer the wire the longer the delay.
-
-Multi-layers: instead of having only one $2D$ grid, we have multiple grids, stacked vertically.
-
-Steiner Point: intermediate points that targets can be connected to.
-
+\subsection{Basics} %There's a space here, don't erase it.
+\begin{itemize}
+	\item Maze: it's a $[D,W,H]$ matrix that contains cells, used to simulate the grid.
+    \item D: number of layers, W: width of the layer, H: height of the layer.
+    \item Cells: each cell is a pin, a cell could represent a pin or an obstalce.
+	\item Pin: the part where transistors gets connected to.
+	\item Source: the starting point (pin) that needs to be connected to some targets.
+	\item Tatgets: one or many point/s (pin/s) that need to be connected to the source in minimum cost.
+	\item Obstacle: a block that wires can't go through.
+	\item Vias: like a ladder to the upper or lower layer.
+	\item Wire: what connects the pins with each others.
+	\item Path: the route which the wire will take in order to connect the source with all of the targets.
+	\item Cost: the length of the path, the longer the wire the larger the delay.
+	\item Multi-layers: instead of having only one $2D$ grid, we have multiple grids, stacked vertically.
+	\item Steiner Point: intermediate points that targets can be connected to.
+\end{itemize}
 
 \subsection{Assumptions} 
-All wires are the same size.
-
-No geometric rules (ie. spacing) violations.
-
-All pins are the center of cells.
+\begin{itemize}
+    \item All wires are the same size.
+    \item No geometric rules violations(ie. spacing).
+    \item All pins are placed at the center of cells.
+\end{itemize}

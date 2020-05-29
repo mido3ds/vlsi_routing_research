@@ -45,7 +45,7 @@
     Before diving into these algorithms make sure to read the \nameref{terminologySection} section first.
     \newline
 
-    \subsubsection{Lee algorithm}
+    \subsubsection{\underline{Lee algorithm}}
     \label{LeeSection}
     This is one of the most common and origin routing algorithms \cite{LeeRef}.
 
@@ -148,30 +148,55 @@
         \label{fig:cleanUpStage}
     \end{figure}
 
-    \subsubsection{Mikami-Tabuchi algorithm}
+    \subsubsection{\underline{Mikami-Tabuchi algorithm}}
     \label{MikamiSection}
     \input{core/related_work_mikami}
 
-    \subsubsection{Steiner algorithm}
+    \subsubsection{\underline{Steiner algorithm}}
     \label{SteinerSection}
     is the baseline algorithm for our work.
 
-    The definition Steiner Tree is very general, we are mainly concerned with menimum Stiener tree problem,
+    The definition of Steiner Tree is very general, we are mainly concerned with minimum Stiener tree problem,
     and it's algorithm.
 
-    Minimum Steiner Tree $(MST)$ algorithm provides the minimum spanning tree that may exist in the graph.
+    Minimum Steiner Tree $(MST)$ algorithm provides the minimum spanning tree that may exist in the graph,
+    so that it connects multiple points with each others, using intermediate points called Steiner Points.
 
-    It's basic idea is that, after including the first path -the shortest/closest target to the source-
+    It's basic idea is that, after including the first path fig.\ref{fig:steiner_1} -the shortest/closest target to the source-
     any other target that will be connected to the source may be connected to any point of the 
-    earlier extracted path.
+    extracted path, so that it could be connected to the main source or any Stiener Point that's being produced (Grey cells),
+    and to connect that target, we need to know which of the left targets has the minimum distance to the source
+    and all of the Steiner Points fig.\ref{fig:steiner_2}, then pick up the one with the minimum cost fig.\ref{fig:steiner_2},
+    and that's what makes time grows exponentially.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.35\textwidth]{figures/Steiner Stages/steiner_1.png}
+        \caption{step 1}
+        \label{fig:steiner_1}
+    \end{figure}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.35\textwidth]{figures/Steiner Stages/steiner_2.png}
+        \caption{step 2}
+        \label{fig:steiner_2}
+    \end{figure}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.35\textwidth]{figures/Steiner Stages/steiner_3.png}
+        \caption{step 3}
+        \label{fig:steiner_3}
+    \end{figure}
 
     The algorithm works as follows \cite{SteinerRef}:
     \newline
-    %TODO: when finished, adjust this
-    \begin{algorithm}[]
+    
+    \begin{algorithm}[h!]
         \SetAlgoLined
         \KwResult{Optimal/Minimum path between source and all target cells.}
-        Find the closest target to the source\;
+        Find the closest target to the source and Steiner points\;
         \While{$T$ Doesn't span all terminals}{
         Select terminal $x$ not in $T$ that is closest to a vertex in $T$\;
         Add to $T$ the shortest path that connects $x$ with $T$\;
@@ -189,4 +214,3 @@
 
     The intermediate points that are now sources and targets can be connected to are called
     Steiner Points.
-
