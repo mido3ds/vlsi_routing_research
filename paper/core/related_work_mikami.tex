@@ -17,7 +17,7 @@ If one of the lines of the source intersected with one of the lines of the targe
 
 Mikami-Tabuchi algorithm wasn't designed with multilayer in mind. But it could be extended to work with multilayers by using 3d probes/lines and representing the VIAs as lines that's perpendicular to the layer. If a line in the layer intersected with the VIA line, the algorithm, recursively, extends a probe on the same point but on the other layer.
 
-\begin{algorithm}[]
+\begin{algorithm}[h!]
 \SetAlgoLined
 \KwResult{Some path between source and destination.}
     Let S and T be a pair source and destination respectively\;
