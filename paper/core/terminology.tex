@@ -1,15 +1,19 @@
 \begin{itemize}
-	\item Maze: A $[D,W,H]$ matrix that contains cells, used to simulate the grid.
-    \item D: Number of layers, W: width of the layer, H: height of the layer.
-    \item Cells: Each cell is a pin, a cell could represent a pin or an obstacle.
-	\item Pin: The part where transistors gets connected to.
-	\item Source: The starting point (pin) that needs to be connected to some targets.
-	\item Targets: One or many point/s (pin/s) that need to be connected to the source in minimum cost.
-	\item Obstacle: A block that wires can't go through.
-	\item Vias: A passage to the upper or lower layer.
-	\item Wire: What connects the pins with each others.
-	\item Path: The route which the wire will take in order to connect the source with all of the targets.
-	\item Cost: The length of the path, the longer the wire the larger the delay.
-	\item Multi-layers: Instead of having only one $2D$ grid, we have multiple grids, stacked vertically.
-	\item Steiner points: Intermediate points that targets can be connected to.
+	\item Maze : A $[D,W,H]$ matrix that contains cells, used to simulate the grid.
+	\begin{itemize}
+	    \item D : Number of layers.
+	    \item W : Width of the layer.
+	    \item H : Height of the layer.
+	\end{itemize}
+    \item Cells : Each cell is a pin, a cell could represent a pin or an obstacle.
+	\item Pin : The part where transistors gets connected to.
+	\item Source : The starting point \emph{(pin)} that needs to be connected to some targets.
+	\item Targets : One or more point/s \emph{(pin/s)} that need to be connected to the source in minimum cost.
+	\item Obstacle : A block that wires can't go through.
+	\item Vias : A passage to the upper or lower layer.
+	\item Wire : What connects the pins with each others \emph{(made of a specific metal)}.
+	\item Path : The route, which the wire takes, in order to connect the source with all of the targets.
+	\item Cost : The length of the path. The longer the wire, the larger the delay.
+	\item Multi-layers : Instead of having only one $2D$ grid, we have multiple grids \emph{(stacked vertically)}.
+	\item Steiner points : Intermediate points that targets can be connected to.
 \end{itemize}

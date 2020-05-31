@@ -1,8 +1,8 @@
-Fast running systems requires many transistors, which makes the manufacturing process very hard.
-Many Chips have millions or even billions of transistors which affects the circuit timing, power consumption, chip reliability and manufacturability that complicate all the design rules.
+Fast computational systems require a large number of transistors, which makes their manufacturing process very hard.
+Many Chips have millions or even billions of transistors, which affects the circuit timing, power consumption, chip reliability and manufacturability that complicate all the design rules.
 One of the most important challenge is routing to connect the transistors, without causing any problem on the chip.
-Routing problem, in \emph{VLSI}, is considered an \emph{NP-hard} problem, so it is divided into two design phases, \emph{global routing} where the grid is constructed with its nodes and edges,
-and \emph{detailed phase} (our target) to find shortest paths to connect the required pins in the grid together.
+Routing problem, in \emph{VLSI}, is considered as an \emph{NP-hard} problem, so it is divided into two design phases, \emph{global routing}, where the grid is constructed with its nodes and edges,
+and \emph{detailed phase} (our target), to find shortest paths to connect the required pins in the grid together.
 Many algorithms can be used to solve routing problem, as it can be formulated as grid search problem, where speedup and optimality are a trade-off.
-We try \emph{Lee's}, \emph{Mikami-Tabuchi}, \emph{Steiner tree} and \emph{A* search} algorithms, where our main approach was A* search.
-We compare the different algorithms based on their execution time and length of metal.
+We experiment using \emph{Lee's}, \emph{Mikami-Tabuchi}, \emph{Steiner tree} and \emph{A* search} algorithms, where our main approach was A* search.
+We compare the different algorithms based on their execution time and length of metal, produced on the chip.

@@ -1,23 +1,23 @@
-Mikami-Tabuchi developed the algorithm named after them \cite{mikami1968computer} to address the issues of Lee maze solver, which is the huge requirements of time and space.
+Mikami-Tabuchi developed the algorithm named after them \cite{mikami1968computer} to address the issues of \emph{Lee maze} solver, which are the huge requirements of time and space.
 
-Mikami-Tabuchi is simple, fast, low on memory resources but it doesn't guarantee finding the optimal path. It only guarantee finding a path if exists.
+Mikami-Tabuchi is simple, fast, low on memory resources, but it doesn't guarantee finding the optimal path. It only guarantee finding a path \emph{(if exists)}.
 
 Mikami-Tabuchi algorithm is sometimes referred to as \textit{line-probing algorithm} or \textit{line-search algorithm}.
 
-Mikami-Tabuchi basic idea is to extend horizontal and vertical lines/probes from source and target. The algorithm extends those lines until they either hit an edge of the area or an obstacle.
+Mikami-Tabuchi basic idea is to extend horizontal and vertical lines/probes from source and target. The algorithm extends those lines, until they either hit an edge of the area or an obstacle.
 
 If one of the lines of the source intersected with one of the lines of the target, the algorithm backtracks from the point of intersection to both source and target, and that's the solution.
 
-\begin{figure}[H]
+\begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figures/mikami.png}
     \caption{Mikami Algorithm Illustration \cite{chen2009global}}
     \label{fig:mikamiIllustr}
 \end{figure}
 
-Mikami-Tabuchi algorithm wasn't designed with multi-layer in mind. But it could be extended to work with multi-layers by using 3d probes/lines and representing the VIAs as lines that's perpendicular to the layer. If a line in the layer intersected with the VIA line, the algorithm, recursively, extends a probe on the same point but on the other layer.
+Mikami-Tabuchi algorithm wasn't designed with multi-layer in mind. But it can be extended to work with multi-layers by using 3d probes/lines and representing the VIAs as lines that are perpendicular to the layer. If a line, in the layer, intersects with the VIA line, the algorithm, recursively, extends a probe on the same point, but on the other layer.
 
-\begin{algorithm}[h]
+\begin{algorithm}
 \SetAlgoLined
 \KwResult{Some path between source and destination.}
     Let S and T be a pair source and destination respectively\;
