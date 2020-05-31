@@ -8,7 +8,7 @@ Mikami-Tabuchi basic idea is to extend horizontal and vertical lines/probes from
 
 If one of the lines of the source intersected with one of the lines of the target, the algorithm backtracks from the point of intersection to both source and target, and that's the solution.
 
-\begin{figure}
+\begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{figures/mikami.png}
     \caption{Mikami Algorithm Illustration \cite{chen2009global}}
@@ -17,7 +17,7 @@ If one of the lines of the source intersected with one of the lines of the targe
 
 Mikami-Tabuchi algorithm wasn't designed with multi-layer in mind. But it could be extended to work with multi-layers by using 3d probes/lines and representing the VIAs as lines that's perpendicular to the layer. If a line in the layer intersected with the VIA line, the algorithm, recursively, extends a probe on the same point but on the other layer.
 
-\begin{algorithm}[h!]
+\begin{algorithm}[h]
 \SetAlgoLined
 \KwResult{Some path between source and destination.}
     Let S and T be a pair source and destination respectively\;
